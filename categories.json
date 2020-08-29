@@ -1,0 +1,79 @@
+[
+  {
+    "id": 26,
+    "name": "Current Events",
+    "created_at": "2017-08-27T19:30:46.210Z",
+    "updated_at": "2017-08-27T19:30:46.210Z",
+    "url": "https://www.quizdb.org/api/categories/26"
+  },
+  {
+    "id": 21,
+    "name": "Fine Arts",
+    "created_at": "2017-08-27T19:30:45.891Z",
+    "updated_at": "2017-08-27T19:30:45.891Z",
+    "url": "https://www.quizdb.org/api/categories/21"
+  },
+  {
+    "id": 20,
+    "name": "Geography",
+    "created_at": "2017-08-27T19:30:45.889Z",
+    "updated_at": "2017-08-27T19:30:45.889Z",
+    "url": "https://www.quizdb.org/api/categories/20"
+  },
+  {
+    "id": 18,
+    "name": "History",
+    "created_at": "2017-08-27T19:30:45.884Z",
+    "updated_at": "2017-08-27T19:30:45.884Z",
+    "url": "https://www.quizdb.org/api/categories/18"
+  },
+  {
+    "id": 15,
+    "name": "Literature",
+    "created_at": "2017-08-27T19:30:45.876Z",
+    "updated_at": "2017-08-27T19:30:45.876Z",
+    "url": "https://www.quizdb.org/api/categories/15"
+  },
+  {
+    "id": 14,
+    "name": "Mythology",
+    "created_at": "2017-08-27T19:30:45.873Z",
+    "updated_at": "2017-08-27T19:30:45.873Z",
+    "url": "https://www.quizdb.org/api/categories/14"
+  },
+  {
+    "id": 25,
+    "name": "Philosophy",
+    "created_at": "2017-08-27T19:30:45.930Z",
+    "updated_at": "2017-08-27T19:30:45.930Z",
+    "url": "https://www.quizdb.org/api/categories/25"
+  },
+  {
+    "id": 19,
+    "name": "Religion",
+    "created_at": "2017-08-27T19:30:45.887Z",
+    "updated_at": "2017-08-27T19:30:45.887Z",
+    "url": "https://www.quizdb.org/api/categories/19"
+  },
+  {
+    "id": 17,
+    "name": "Science",
+    "created_at": "2017-08-27T19:30:45.881Z",
+    "updated_at": "2017-08-27T19:30:45.881Z",
+    "url": "https://www.quizdb.org/api/categories/17"
+  },
+  {
+    "id": 22,
+    "name": "Social Science",
+    "created_at": "2017-08-27T19:30:45.898Z",
+    "updated_at": "2017-08-27T19:30:45.898Z",
+    "url": "https://www.quizdb.org/api/categories/22"
+  },
+  {
+    "id": 16,
+    "name": "Trash",
+    "created_at": "2017-08-27T19:30:45.878Z",
+    "updated_at": "2017-08-27T19:30:45.878Z",
+    "url": "https://www.quizdb.org/api/categories/16"
+  }
+]
