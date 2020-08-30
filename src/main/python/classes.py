@@ -3,11 +3,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import sys
 
+
 class StartWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
 
         # for centering window
         qtRectangle = self.frameGeometry()
@@ -52,18 +52,18 @@ class StartWindow(QMainWindow):
         self.infoButton.setFont(QFont('Helvetica Neue', 20))
         self.infoButton.setFixedWidth(400)
         self.infoButton.setStyleSheet("QPushButton {"
-                                       "background-color: #D0F4DE;"
-                                       "border-radius: 15px; "
-                                       "padding: 15px; "
-                                       "border-style: outset;"
-                                       "margin: 25px"
-                                       "}"
-                                       "QPushButton:pressed {"
-                                       "background-color: #A9DEF9;"
-                                       "border-radius: 15px;"
-                                       "padding:15px;"
-                                       "border-style: inset;"
-                                       "}")
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 25px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
         self.infoButton.clicked.connect(self.infoNavigate)
         self.startButton.clicked.connect(self.gameNavigate)
         # putting it together
@@ -88,13 +88,10 @@ class StartWindow(QMainWindow):
         self.close()
 
 
-
 class InfoWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
-
 
         # for centering window
         qtRectangle = self.frameGeometry()
@@ -160,11 +157,30 @@ class InfoWindow(QMainWindow):
         self.startwindow = StartWindow()
         self.startwindow.show()
 
+# categories and subcategories for api and ui
+categories = ["Current Events", "Fine Arts", "Geography", "History", "Literature", "Mythology", "Philosophy", "Religion"
+              , "Science", "Social Science", "Trash"]
+categoriesID = [26, 21, 20, 18, 15, 14, 25, 19, 17, 22, 16]
+subcategories = ["Current Events American", "Current Events Other", "Fine Arts American", "Fine Arts Audiovisual"
+                 , "Fine Arts Auditory", "Fine Arts British", "Fine Arts European", "Fine Arts Opera", "Fine Arts Other"
+                 , "Fine Arts Visual", "Fine Arts World", "Geography American", "Geography World", "History American"
+                 , "History British", "History Classical", "History European", "History Other", "History World"
+                 , "Literature American", "Literature British", "Literature Classical", "Literature European"
+                 , "Literature Other", "Literature World", "Mythology American", "Mythology Chinese"
+                 , "Mythology Egyptian", "Mythology Greco-Roman", "Mythology Indian", "Mythology Japanese"
+                 , "Mythology Norse", "Mythology Other", "Mythology Other East Asian", "Philosophy American"
+                 , "Philosophy Classical", "Philosophy East Asian", "Philosophy European", "Philosophy Other"
+                 , "Religion American", "Religion Christianity", "Religion East Asian", "Religion Islam"
+                 , "Religion Judaism", "Religion Other", "Science American", "Science Biology", "Science Chemistry"
+                 , "Science Computer Science", "Science Math", "Science Other", "Science Physics", "Science World"
+                 , "Social Science American", "Social Science Anthropology", "Social Science Economics"
+                 , "Social Science Linguistics", "Social Science Other", "Social Science Political Science"
+                 , "Social Science Psychology", "Social Science Sociology", "Trash American", "Trash Movies"
+                 , "Trash Music", "Trash Other", "Trash Sports", "Trash Television", "Trash Video Games"]
+subcategoriesID = [40, 42, 35, 27, 8, 45, 50, 77, 25, 2, 43, 38, 44, 13, 6, 16, 24, 28, 20, 4, 22, 30, 1, 29, 12, 33
+                   , 47, 65, 58, 46, 48, 63, 54, 49, 39, 61, 52, 66, 74, 31, 57, 51, 68, 69, 62, 36, 14, 5, 23, 26, 10
+                   , 18, 37, 34, 76, 56, 75, 60, 64, 71, 73, 32, 72, 67, 59, 55, 70, 53]
 
-categories = []
-categoriesID = []
-subcategories = []
-subcategoriesID = []
 
 class GamePlay(QMainWindow):
     def __init__(self):
@@ -186,14 +202,12 @@ class GamePlay(QMainWindow):
 
         # dropdowns for category and subcategory
 
-
         # putting it together
         self.widget = QWidget(self)
         self.mainLayout = QVBoxLayout(self.widget)
         self.firstHor = QHBoxLayout()
 
         self.firstHor.addWidget()
-
 
         self.mainLayout.addLayout(self.firstHor)
 
