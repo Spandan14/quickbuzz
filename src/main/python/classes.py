@@ -83,7 +83,7 @@ class StartWindow(QMainWindow):
         self.close()
 
     def gameNavigate(self):
-        self.gamewindow = GamePlay()
+        self.gamewindow = CategorySelection()
         self.gamewindow.show()
         self.close()
 
@@ -185,8 +185,13 @@ difficulties = ["1) Middle School", "2) Easy High School", "3) Regular High Scho
                 , "5) National High School", "6) Easy College", "7) Regular College", "8) Hard College", "9) Open"
                 , "10) Everything"]
 difficultiesID = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+selectedCategories = []
+selectedCategoryButtons = []
+selectedSubCategories = []
+selectedSubCategoryButtons = []
 
-class GamePlay(QMainWindow):
+
+class CategorySelection(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -207,7 +212,8 @@ class GamePlay(QMainWindow):
         # dropdowns for category and subcategory
         self.categoryDrop = QComboBox(self)
         for i in categories:
-            self.categoryDrop.addItem(i)
+            if i not in selectedCategories:
+                self.categoryDrop.addItem(i)
         self.categoryDropLabel = QLabel("Category")
         self.categoryDrop.activated[str].connect(self.dropDownChangedCategory)
         self.categoryDrop.setFont(QFont("Helvetica Neue", 14))
@@ -222,16 +228,62 @@ class GamePlay(QMainWindow):
         self.subCategoryDrop.setFixedWidth(370)
         self.subCategoryDrop.setStyleSheet("border: 5px black; background: #E4C1F9; height: 50px;")
 
+        # buttons for removing category/subcategory
+        self.rmCat = QPushButton()
+        self.rmCat.setText("Remove Category")
+        self.rmCat.setFont(QFont('Helvetica Neue', 12))
+        self.rmCat.setFixedWidth(200)
+        self.rmCat.setStyleSheet("QPushButton {"
+                                 "background-color: #FCF6BD;"
+                                 "border-radius: 15px; "
+                                 "padding: 5px; "
+                                 "border-style: outset;"
+                                 "margin: 5px"
+                                 "}"
+                                 "QPushButton:pressed {"
+                                 "background-color: #E4C1F9;"
+                                 "border-radius: 15px;"
+                                 "padding:5px;"
+                                 "border-style: inset;"
+                                 "}")
+        self.rmCat.clicked.connect(self.removeCat)
+
+        self.rmSubCat = QPushButton()
+        self.rmSubCat.setText("Remove Category")
+        self.rmSubCat.setFont(QFont('Helvetica Neue', 12))
+        self.rmSubCat.setFixedWidth(200)
+        self.rmSubCat.setStyleSheet("QPushButton {"
+                                 "background-color: #FCF6BD;"
+                                 "border-radius: 15px; "
+                                 "padding: 5px; "
+                                 "border-style: outset;"
+                                 "margin: 5px"
+                                 "}"
+                                 "QPushButton:pressed {"
+                                 "background-color: #E4C1F9;"
+                                 "border-radius: 15px;"
+                                 "padding:5px;"
+                                 "border-style: inset;"
+                                 "}")
+
+
+
         # putting it together
         self.widget = QWidget(self)
         self.mainLayout = QVBoxLayout(self.widget)
+
+        self.zeroHor = QHBoxLayout()
+        self.zeroHor.addWidget(self.rmCat)
 
         self.firstHor = QHBoxLayout()
         self.firstHor.addWidget(self.categoryDrop)
         self.firstHor.addWidget(self.subCategoryDrop)
 
-        self.secondHor = QHBoxLayout()
+        self.secondHor = QGridLayout()
+        self.gridx = 0
+        self.gridy = 0
 
+        self.mainLayout.addLayout(self.zeroHor)
         self.mainLayout.addLayout(self.firstHor)
         self.mainLayout.addLayout(self.secondHor)
         self.setCentralWidget(self.widget)
@@ -240,13 +292,74 @@ class GamePlay(QMainWindow):
         self.categoryDropLabel.setText(text)
         self.categoryDrop.adjustSize()
         self.subCategoryDrop.clear()
+        self.categoryDrop.clear()
         for i in subcategories:
-            if text in i or text == "Everything":
+            if text in i or i == "Everything":
                 self.subCategoryDrop.addItem(i)
+        selectedCategories.append(text)
+        for i in categories:
+            if "Everything" in selectedCategories:
+                break
+            if i not in selectedCategories:
+                if i != "Everything":
+                    self.categoryDrop.addItem(i)
+
+        self.tempButton = QPushButton()
+        self.tempButton.setText(text)
+        self.tempButton.setFont(QFont('Helvetica Neue', 8))
+        self.tempButton.setFixedWidth(100)
+        self.tempButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 5px; "
+                                      "border-style: outset;"
+                                      "margin: 5px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:5px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.secondHor.addWidget(self.tempButton, self.gridx, self.gridy)
+        self.gridy += 1
+        if self.gridy % 5 == 0 and self.gridy > 0:
+            self.gridx += 1
+            self.gridy = 0
+        selectedCategoryButtons.append(self.tempButton)
+
+    def removeCat(self):
+        try:
+            selectedCategoryButtons[len(selectedCategoryButtons)-1].hide()
+            selectedCategoryButtons.pop()
+            selectedCategories.pop()
+        except:
+            catReply = QMessageBox()
+            catReply.setIcon(QMessageBox.Warning)
+            catReply.setWindowTitle("QuickBuzz")
+            catReply.setText("There are no categories to remove")
+            catReply.setStandardButtons(QMessageBox.Ok)
+
+            returnValue = catReply.exec()
+            if returnValue == QMessageBox.Ok:
+                print("ok")
+
+
+        self.categoryDrop.clear()
+        for i in categories:
+            if "Everything" in selectedCategories:
+                break
+            if i not in selectedCategories:
+                if i != "Everything":
+                    self.categoryDrop.addItem(i)
+
 
     def dropDownChangedSubCategory(self, text):
         self.subCategoryDropLabel.setText(text)
         self.categoryDrop.adjustSize()
+
+    def hideCat(self, x):
+        print("d")
 
 
     def back(self):
