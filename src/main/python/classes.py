@@ -159,8 +159,8 @@ class InfoWindow(QMainWindow):
 
 # categories and subcategories for api and ui
 categories = ["Current Events", "Fine Arts", "Geography", "History", "Literature", "Mythology", "Philosophy", "Religion"
-              , "Science", "Social Science", "Trash"]
-categoriesID = [26, 21, 20, 18, 15, 14, 25, 19, 17, 22, 16]
+              , "Science", "Social Science", "Trash", "Everything"]
+categoriesID = [26, 21, 20, 18, 15, 14, 25, 19, 17, 22, 16, -1]
 subcategories = ["Current Events American", "Current Events Other", "Fine Arts American", "Fine Arts Audiovisual"
                  , "Fine Arts Auditory", "Fine Arts British", "Fine Arts European", "Fine Arts Opera", "Fine Arts Other"
                  , "Fine Arts Visual", "Fine Arts World", "Geography American", "Geography World", "History American"
@@ -176,11 +176,15 @@ subcategories = ["Current Events American", "Current Events Other", "Fine Arts A
                  , "Social Science American", "Social Science Anthropology", "Social Science Economics"
                  , "Social Science Linguistics", "Social Science Other", "Social Science Political Science"
                  , "Social Science Psychology", "Social Science Sociology", "Trash American", "Trash Movies"
-                 , "Trash Music", "Trash Other", "Trash Sports", "Trash Television", "Trash Video Games"]
+                 , "Trash Music", "Trash Other", "Trash Sports", "Trash Television", "Trash Video Games"
+                 , "Everything"]
 subcategoriesID = [40, 42, 35, 27, 8, 45, 50, 77, 25, 2, 43, 38, 44, 13, 6, 16, 24, 28, 20, 4, 22, 30, 1, 29, 12, 33
                    , 47, 65, 58, 46, 48, 63, 54, 49, 39, 61, 52, 66, 74, 31, 57, 51, 68, 69, 62, 36, 14, 5, 23, 26, 10
-                   , 18, 37, 34, 76, 56, 75, 60, 64, 71, 73, 32, 72, 67, 59, 55, 70, 53]
-
+                   , 18, 37, 34, 76, 56, 75, 60, 64, 71, 73, 32, 72, 67, 59, 55, 70, 53, -1]
+difficulties = ["1) Middle School", "2) Easy High School", "3) Regular High School", "4) Hard High School"
+                , "5) National High School", "6) Easy College", "7) Regular College", "8) Hard College", "9) Open"
+                , "10) Everything"]
+difficultiesID = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 class GamePlay(QMainWindow):
     def __init__(self):
@@ -201,17 +205,49 @@ class GamePlay(QMainWindow):
         self.setWindowIcon(QIcon("src/main/python/Icon.ico"))
 
         # dropdowns for category and subcategory
+        self.categoryDrop = QComboBox(self)
+        for i in categories:
+            self.categoryDrop.addItem(i)
+        self.categoryDropLabel = QLabel("Category")
+        self.categoryDrop.activated[str].connect(self.dropDownChangedCategory)
+        self.categoryDrop.setFont(QFont("Helvetica Neue", 14))
+        self.categoryDrop.setFixedWidth(200)
+        self.categoryDrop.setStyleSheet("border: 5px black; background: #E4C1F9; height: 50px;")
+
+        self.subCategoryDrop = QComboBox(self)
+        self.subCategoryDrop.addItem("Choose a category")
+        self.subCategoryDropLabel = QLabel("Choose a category")
+        self.subCategoryDrop.activated[str].connect(self.dropDownChangedSubCategory)
+        self.subCategoryDrop.setFont(QFont("Helvetica Neue", 14))
+        self.subCategoryDrop.setFixedWidth(370)
+        self.subCategoryDrop.setStyleSheet("border: 5px black; background: #E4C1F9; height: 50px;")
 
         # putting it together
         self.widget = QWidget(self)
         self.mainLayout = QVBoxLayout(self.widget)
-        self.firstHor = QHBoxLayout()
 
-        self.firstHor.addWidget()
+        self.firstHor = QHBoxLayout()
+        self.firstHor.addWidget(self.categoryDrop)
+        self.firstHor.addWidget(self.subCategoryDrop)
+
+        self.secondHor = QHBoxLayout()
 
         self.mainLayout.addLayout(self.firstHor)
-
+        self.mainLayout.addLayout(self.secondHor)
         self.setCentralWidget(self.widget)
+
+    def dropDownChangedCategory(self, text):
+        self.categoryDropLabel.setText(text)
+        self.categoryDrop.adjustSize()
+        self.subCategoryDrop.clear()
+        for i in subcategories:
+            if text in i or text == "Everything":
+                self.subCategoryDrop.addItem(i)
+
+    def dropDownChangedSubCategory(self, text):
+        self.subCategoryDropLabel.setText(text)
+        self.categoryDrop.adjustSize()
+
 
     def back(self):
         self.hide()
