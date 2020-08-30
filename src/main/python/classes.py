@@ -220,13 +220,6 @@ class CategorySelection(QMainWindow):
         self.categoryDrop.setFixedWidth(200)
         self.categoryDrop.setStyleSheet("border: 5px black; background: #E4C1F9; height: 50px;")
 
-        self.subCategoryDrop = QComboBox(self)
-        self.subCategoryDrop.addItem("Choose a category")
-        self.subCategoryDropLabel = QLabel("Choose a category")
-        self.subCategoryDrop.activated[str].connect(self.dropDownChangedSubCategory)
-        self.subCategoryDrop.setFont(QFont("Helvetica Neue", 14))
-        self.subCategoryDrop.setFixedWidth(370)
-        self.subCategoryDrop.setStyleSheet("border: 5px black; background: #E4C1F9; height: 50px;")
 
         # buttons for removing category/subcategory
         self.rmCat = QPushButton()
@@ -248,25 +241,44 @@ class CategorySelection(QMainWindow):
                                  "}")
         self.rmCat.clicked.connect(self.removeCat)
 
-        self.rmSubCat = QPushButton()
-        self.rmSubCat.setText("Remove Category")
-        self.rmSubCat.setFont(QFont('Helvetica Neue', 12))
-        self.rmSubCat.setFixedWidth(200)
-        self.rmSubCat.setStyleSheet("QPushButton {"
-                                 "background-color: #FCF6BD;"
-                                 "border-radius: 15px; "
-                                 "padding: 5px; "
-                                 "border-style: outset;"
-                                 "margin: 5px"
-                                 "}"
-                                 "QPushButton:pressed {"
-                                 "background-color: #E4C1F9;"
-                                 "border-radius: 15px;"
-                                 "padding:5px;"
-                                 "border-style: inset;"
-                                 "}")
+        # navigation buttons
+        self.backButton = QPushButton()
+        self.backButton.setText("Back")
+        self.backButton.setFont(QFont('Helvetica Neue', 20))
+        self.backButton.setFixedWidth(200)
+        self.backButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 25px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.backButton.clicked.connect(self.back)
 
-
+        self.nextButton = QPushButton()
+        self.nextButton.setText("Next")
+        self.nextButton.setFont(QFont('Helvetica Neue', 20))
+        self.nextButton.setFixedWidth(200)
+        self.nextButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 25px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.nextButton.clicked.connect(self.next)
 
         # putting it together
         self.widget = QWidget(self)
@@ -277,28 +289,41 @@ class CategorySelection(QMainWindow):
 
         self.firstHor = QHBoxLayout()
         self.firstHor.addWidget(self.categoryDrop)
-        self.firstHor.addWidget(self.subCategoryDrop)
 
         self.secondHor = QGridLayout()
         self.gridx = 0
         self.gridy = 0
 
+        for i in selectedCategoryButtons:
+            if "Everything" in selectedCategories:
+                self.categoryDrop.setPlaceholderText("Everything")
+                self.categoryDrop.clear()
+            self.secondHor.addWidget(i, self.gridx, self.gridy)
+            self.gridy += 1
+            if self.gridy % 5 == 0 and self.gridy > 0:
+                self.gridx += 1
+                self.gridy = self.gridy % 5
+
+        self.thirdHor = QHBoxLayout()
+        self.thirdHor.addWidget(self.backButton)
+        self.thirdHor.addWidget(self.nextButton)
+
         self.mainLayout.addLayout(self.zeroHor)
         self.mainLayout.addLayout(self.firstHor)
         self.mainLayout.addLayout(self.secondHor)
+        self.mainLayout.addLayout(self.thirdHor)
         self.setCentralWidget(self.widget)
 
     def dropDownChangedCategory(self, text):
-        self.categoryDropLabel.setText(text)
+        self.categoryDrop.setPlaceholderText(text)
         self.categoryDrop.adjustSize()
-        self.subCategoryDrop.clear()
         self.categoryDrop.clear()
-        for i in subcategories:
-            if text in i or i == "Everything":
-                self.subCategoryDrop.addItem(i)
+        global selectedCategories, selectedCategoryButtons
         selectedCategories.append(text)
         for i in categories:
             if "Everything" in selectedCategories:
+                selectedCategories = ["Everything"]
+                selectedCategoryButtons = []
                 break
             if i not in selectedCategories:
                 if i != "Everything":
@@ -322,10 +347,12 @@ class CategorySelection(QMainWindow):
                                       "border-style: inset;"
                                       "}")
         self.secondHor.addWidget(self.tempButton, self.gridx, self.gridy)
+        print(self.gridx)
+        print(self.gridy)
         self.gridy += 1
         if self.gridy % 5 == 0 and self.gridy > 0:
             self.gridx += 1
-            self.gridy = 0
+            self.gridy = self.gridy % 5
         selectedCategoryButtons.append(self.tempButton)
 
     def removeCat(self):
@@ -333,6 +360,11 @@ class CategorySelection(QMainWindow):
             selectedCategoryButtons[len(selectedCategoryButtons)-1].hide()
             selectedCategoryButtons.pop()
             selectedCategories.pop()
+            if self.gridy != 0:
+                self.gridy -= 1
+            elif self.gridy == 0 and self.gridx != 0:
+                self.gridx -= 1
+                self.gridy = 4
         except:
             catReply = QMessageBox()
             catReply.setIcon(QMessageBox.Warning)
@@ -354,15 +386,215 @@ class CategorySelection(QMainWindow):
                     self.categoryDrop.addItem(i)
 
 
-    def dropDownChangedSubCategory(self, text):
-        self.subCategoryDropLabel.setText(text)
-        self.categoryDrop.adjustSize()
-
-    def hideCat(self, x):
-        print("d")
-
 
     def back(self):
         self.hide()
         self.startwindow = StartWindow()
         self.startwindow.show()
+        self.gridx = 0
+        self.gridy = 0
+    def next(self):
+        self.hide()
+        self.nextwindow = SubCategorySelection()
+        self.nextwindow.show()
+        self.gridx = 0
+        self.gridy = 0
+        print(selectedCategories)
+
+class SubCategorySelection(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        # for centering window
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
+
+        # init window
+        self.setWindowTitle("QuickBuzz")
+        self.setGeometry(qtRectangle)
+        self.setFixedWidth(600)
+        self.setFixedHeight(600)
+        self.setStyleSheet("background-color: #F9ADA0;")
+        self.setWindowIcon(QIcon("src/main/python/Icon.ico"))
+
+        # dropdowns for category and subcategory
+
+
+        self.subCategoryDrop = QComboBox(self)
+        if "Everything" in selectedCategories:
+            self.subCategoryDrop.addItem("Everything")
+        else:
+            for i in selectedCategories:
+                for j in subcategories:
+                    if i in j:
+                        self.subCategoryDrop.addItem(j)
+                self.subCategoryDrop.addItem("Everything " + i)
+
+
+        self.subCategoryDropLabel = QLabel("Choose a category")
+        self.subCategoryDrop.activated[str].connect(self.dropDownChangedSubCategory)
+        self.subCategoryDrop.setFont(QFont("Helvetica Neue", 14))
+        self.subCategoryDrop.setFixedWidth(370)
+        self.subCategoryDrop.setStyleSheet("border: 5px black; background: #E4C1F9; height: 50px;")
+
+        self.rmSubCat = QPushButton()
+        self.rmSubCat.setText("Remove Category")
+        self.rmSubCat.setFont(QFont('Helvetica Neue', 12))
+        self.rmSubCat.setFixedWidth(200)
+        self.rmSubCat.setStyleSheet("QPushButton {"
+                                 "background-color: #FCF6BD;"
+                                 "border-radius: 15px; "
+                                 "padding: 5px; "
+                                 "border-style: outset;"
+                                 "margin: 5px"
+                                 "}"
+                                 "QPushButton:pressed {"
+                                 "background-color: #E4C1F9;"
+                                 "border-radius: 15px;"
+                                 "padding:5px;"
+                                 "border-style: inset;"
+                                 "}")
+
+        # navigation buttons
+        self.backButton = QPushButton()
+        self.backButton.setText("Back")
+        self.backButton.setFont(QFont('Helvetica Neue', 20))
+        self.backButton.setFixedWidth(200)
+        self.backButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 25px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.backButton.clicked.connect(self.back)
+
+        self.nextButton = QPushButton()
+        self.nextButton.setText("Next")
+        self.nextButton.setFont(QFont('Helvetica Neue', 20))
+        self.nextButton.setFixedWidth(200)
+        self.nextButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 25px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.nextButton.clicked.connect(self.next)
+
+        # putting it together
+        self.widget = QWidget(self)
+        self.mainLayout = QVBoxLayout(self.widget)
+
+        self.zeroHor = QHBoxLayout()
+        self.zeroHor.addWidget(self.rmSubCat)
+
+        self.firstHor = QHBoxLayout()
+        self.firstHor.addWidget(self.subCategoryDrop)
+
+        self.secondHor = QGridLayout()
+        self.gridx = 0
+        self.gridy = 0
+
+        self.thirdHor = QHBoxLayout()
+        self.thirdHor.addWidget(self.backButton)
+        self.thirdHor.addWidget(self.nextButton)
+
+        self.mainLayout.addLayout(self.zeroHor)
+        self.mainLayout.addLayout(self.firstHor)
+        self.mainLayout.addLayout(self.secondHor)
+        self.mainLayout.addLayout(self.thirdHor)
+        self.setCentralWidget(self.widget)
+
+    def dropDownChangedCategory(self, text):
+        self.subCategoryDrop.removeItem(text)
+        if "Everything" in text:
+            temp = text.split(" ")
+            for i in subcategories:
+                if temp[1] in i:
+                    self.subCategoryDrop.removeItem(i)
+
+        self.tempButton = QPushButton()
+        self.tempButton.setText(text)
+        self.tempButton.setFont(QFont('Helvetica Neue', 8))
+        self.tempButton.setFixedWidth(100)
+        self.tempButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 5px; "
+                                      "border-style: outset;"
+                                      "margin: 5px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:5px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.secondHor.addWidget(self.tempButton, self.gridx, self.gridy)
+        print(self.gridx)
+        print(self.gridy)
+        self.gridy += 1
+        if self.gridy % 5 == 0 and self.gridy > 0:
+            self.gridx += 1
+            self.gridy = self.gridy % 5
+        selectedCategoryButtons.append(self.tempButton)
+
+    def removeSubCat(self):
+        try:
+            selectedSubCategoryButtons[len(selectedCategoryButtons)-1].hide()
+            selectedSubCategoryButtons.pop()
+            selectedSubCategories.pop()
+            if self.gridy != 0:
+                self.gridy -= 1
+            elif self.gridy == 0 and self.gridx != 0:
+                self.gridx -= 1
+                self.gridy = 4
+        except:
+            catReply = QMessageBox()
+            catReply.setIcon(QMessageBox.Warning)
+            catReply.setWindowTitle("QuickBuzz")
+            catReply.setText("There are no subcategories to remove")
+            catReply.setStandardButtons(QMessageBox.Ok)
+
+            returnValue = catReply.exec()
+            if returnValue == QMessageBox.Ok:
+                print("ok")
+
+
+        self.categoryDrop.clear()
+        for i in subcategories:
+            if "Everything" in selectedSubCategories:
+                break
+            if i not in selectedSubCategories:
+                if i != "Everything":
+                    self.subCategoryDrop.addItem(i)
+
+
+    def dropDownChangedSubCategory(self, text):
+        self.subCategoryDrop.setPlaceholderText(text)
+        self.subCategoryDrop.adjustSize()
+
+
+
+    def back(self):
+        self.hide()
+        self.startwindow = CategorySelection()
+        self.startwindow.show()
+
+    def next(self):
+        self.hide()
