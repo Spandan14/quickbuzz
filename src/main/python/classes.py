@@ -520,17 +520,30 @@ class SubCategorySelection(QMainWindow):
         self.setCentralWidget(self.widget)
 
     def dropDownChangedSubCategory(self, text):
-        self.subCategoryDrop.setPlaceholderText(text)
         if "Everything" not in text:
             temp = text.split(" ")
             for i in range(self.subCategoryDrop.count()):
                 if "Everything" in self.subCategoryDrop.itemText(i) and temp[0] in self.subCategoryDrop.itemText(i):
                     self.subCategoryDrop.removeItem(i)
+        if "Everything" in text:
+            temp = text.split(" ")
+            print(temp)
+            i = self.subCategoryDrop.count()
+            while i >= 0:
+                print(self.subCategoryDrop.itemText(i))
+                print(i)
+                if temp[1] in self.subCategoryDrop.itemText(i):
+                    self.subCategoryDrop.removeItem(i)
+                    i+=1
+                i-=1
 
-
-
+        for i in range(self.subCategoryDrop.count()):
+            if self.subCategoryDrop.itemText(i) == text:
+                self.subCategoryDrop.removeItem(i)
 
         selectedSubCategories.append(text)
+
+        self.subCategoryDrop.setPlaceholderText(text)
 
         self.tempButton = QPushButton()
         self.tempButton.setText(text)
@@ -561,19 +574,44 @@ class SubCategorySelection(QMainWindow):
     def removeSubCat(self):
         try:
 
-
-
+            removedEv = False
+            whatremoved = ""
+            if "Everything" in selectedSubCategories[len(selectedSubCategories)-1]:
+                removedEv = True
+                whatremoved = selectedSubCategories[len(selectedSubCategories)-1].split(" ")[1]
 
             selectedSubCategoryButtons[len(selectedSubCategoryButtons)-1].hide()
             selectedSubCategoryButtons.pop()
+            if not removedEv:
+                self.subCategoryDrop.addItem(selectedSubCategories[len(selectedSubCategories)-1])
             selectedSubCategories.pop()
             if self.gridy != 0:
                 self.gridy -= 1
             elif self.gridy == 0 and self.gridx != 0:
                 self.gridx -= 1
                 self.gridy = 4
-
-
+            if selectedSubCategories == [] and removedEv:
+                if "Everything" in selectedCategories:
+                    self.subCategoryDrop.addItem("Everything")
+                else:
+                    for i in selectedCategories:
+                        for j in subcategories:
+                            if i in j and whatremoved in j:
+                                self.subCategoryDrop.addItem(j)
+                        self.subCategoryDrop.addItem("Everything " + i)
+            else:
+                availableSubcats = []
+                for j in range(self.subCategoryDrop.count()):
+                    availableSubcats.append(self.subCategoryDrop.itemText(j))
+                for i in selectedCategories:
+                    addevery = True
+                    everytemp = "Everything " + i
+                    if everytemp not in availableSubcats:
+                        for j in selectedSubCategories:
+                            if i in j:
+                                addevery = False
+                        if addevery:
+                            self.subCategoryDrop.addItem(everytemp)
         except:
 
             catReply = QMessageBox()
@@ -586,18 +624,7 @@ class SubCategorySelection(QMainWindow):
             if returnValue == QMessageBox.Ok:
                 print("ok")
 
-        availableSubcats = []
-        for j in range(self.subCategoryDrop.count()):
-            availableSubcats.append(self.subCategoryDrop.itemText(j))
-        for i in selectedCategories:
-            addevery = True
-            everytemp = "Everything " + i
-            if everytemp not in availableSubcats:
-                for j in selectedSubCategories:
-                    if i in j:
-                        addevery = False
-                if addevery:
-                    self.subCategoryDrop.addItem(everytemp)
+
 
     def back(self):
         self.hide()
