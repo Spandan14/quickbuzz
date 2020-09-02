@@ -1,8 +1,10 @@
+import time
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import sys
-
+import os
 
 class StartWindow(QMainWindow):
 
@@ -387,6 +389,8 @@ class CategorySelection(QMainWindow):
                 if i != "Everything":
                     self.categoryDrop.addItem(i)
 
+        if selectedCategories == []:
+            self.categoryDrop.addItem("Everything")
 
 
     def back(self):
@@ -831,6 +835,12 @@ class DifficultySelection(QMainWindow):
 
     def next(self):
         self.hide()
+        self.tuwindow = FindTossup()
+        self.tuwindow.show()
+
+availableTossupIDS = []
+availableTossups = []
+availableAnswers = []
 
 class FindTossup(QMainWindow):
     def __init__(self):
@@ -850,9 +860,110 @@ class FindTossup(QMainWindow):
         self.setStyleSheet("background-color: #F9ADA0;")
         self.setWindowIcon(QIcon("src/main/python/Icon.ico"))
 
+        self.titleLabel = QLabel(u"Tossups", self)
+        self.titleLabel.setFont(QFont('Helvetica Neue', 24))
+        self.titleLabel.setStyleSheet("color: black; margin: 50px;")
+
+        self.ftu = QPushButton()
+        self.ftu.setText("Find Tossups")
+        self.ftu.setFont(QFont('Helvetica Neue', 12))
+        self.ftu.setFixedWidth(250)
+        self.ftu.setStyleSheet("QPushButton {"
+                                  "background-color: #FCF6BD;"
+                                  "border-radius: 15px; "
+                                  "padding: 5px; "
+                                  "border-style: outset;"
+                                  "margin: 5px"
+                                  "}"
+                                  "QPushButton:pressed {"
+                                  "background-color: #E4C1F9;"
+                                  "border-radius: 15px;"
+                                  "padding:5px;"
+                                  "border-style: inset;"
+                                  "}")
+        self.ftu.clicked.connect(self.getTUS)
+
         # putting it together
         self.widget = QWidget(self)
         self.mainLayout = QVBoxLayout(self.widget)
-
-
+        self.mainLayout.addWidget(self.titleLabel, alignment=Qt.AlignCenter)
+        self.mainLayout.addWidget(self.ftu, alignment=Qt.AlignCenter)
         self.setCentralWidget(self.widget)
+
+    def getTUS(self):
+        strippedDiffs = []
+        for i in selectedDifficulties:
+            if i[0:2] == "10":
+                strippedDiffs.append(10)
+                break
+            else:
+                strippedDiffs.append(int(i[0:1]))
+        print(strippedDiffs)
+        print(selectedSubCategories)
+        if "Everything" in selectedCategories:
+            for file in os.listdir("src/main/python/quizdb"):
+                filename = os.fsdecode(file)
+                print(filename)
+                with open(f"src/main/python/quizdb/{filename}", mode="r") as f:
+                    data = f.readlines()
+                    for j in range(0, len(data)):
+                        if "-)" in data[j]:
+                            id = data[j]
+                            try:
+                                dif = int(data[j + 3])
+                                tu = data[j+1]
+                                an = data[j+2]
+                            except ValueError:
+                                continue
+                            if dif in strippedDiffs or strippedDiffs == [10]:
+                                availableTossupIDS.append(id)
+                                availableTossups.append(tu)
+                                availableAnswers.append(an)
+        else:
+            for i in selectedSubCategories:
+                if "Everything" in i:
+                    temp = i.split(" ")
+                    for file in os.listdir("src/main/python/quizdb"):
+                        filename = os.fsdecode(file)
+                        if temp[1] in filename:
+                            print(filename)
+                            with open(f"src/main/python/quizdb/{filename}", mode="r") as f:
+                                data = f.readlines()
+                                for j in range(0, len(data)):
+                                    if "-)" in data[j]:
+                                        id = data[j]
+                                        try:
+                                            dif = int(data[j + 3])
+                                            tu = data[j+1]
+                                            an = data[j+2]
+                                        except ValueError:
+                                            continue
+                                        if dif in strippedDiffs or strippedDiffs == [10]:
+                                            availableTossupIDS.append(id)
+                                            availableTossups.append(tu)
+                                            availableAnswers.append(an)
+                else:
+                    for file in os.listdir("src/main/python/quizdb"):
+                        filename = os.fsdecode(file)
+                        if i in filename:
+                            print(filename)
+                            with open(f"src/main/python/quizdb/{filename}", mode="r") as f:
+                                data = f.readlines()
+                                for j in range(0, len(data)):
+                                    if "-)" in data[j]:
+                                        id = data[j]
+                                        try:
+                                            dif = int(data[j + 3])
+                                            tu = data[j+1]
+                                            an = data[j+2]
+                                        except ValueError:
+                                            continue
+                                        if dif in strippedDiffs or strippedDiffs == [10]:
+                                            availableTossupIDS.append(id)
+                                            availableTossups.append(tu)
+                                            availableAnswers.append(an)
+
+        self.doneLabel = QLabel(f"{len(availableTossupIDS)} Tossups Found", self)
+        self.doneLabel.setFont(QFont('Helvetica Neue', 24))
+        self.doneLabel.setStyleSheet("color: black; margin: 50px;")
+        self.mainLayout.addWidget(self.doneLabel, alignment=Qt.AlignCenter)
