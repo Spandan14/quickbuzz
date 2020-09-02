@@ -706,9 +706,9 @@ class DifficultySelection(QMainWindow):
         self.backButton.clicked.connect(self.back)
 
         self.nextButton = QPushButton()
-        self.nextButton.setText("Next")
+        self.nextButton.setText("Confirm")
         self.nextButton.setFont(QFont('Helvetica Neue', 20))
-        self.nextButton.setFixedWidth(200)
+        self.nextButton.setFixedWidth(300)
         self.nextButton.setStyleSheet("QPushButton {"
                                       "background-color: #D0F4DE;"
                                       "border-radius: 15px; "
@@ -752,9 +752,10 @@ class DifficultySelection(QMainWindow):
         self.diffDrop.setPlaceholderText(text)
         if "Everything" not in text:
             for i in range(self.diffDrop.count()):
-                if "Everything" in self.diffDrop.itemText(i):
+                if "Everything" in self.diffDrop.itemText(i) or text == self.diffDrop.itemText(i):
                     self.diffDrop.removeItem(i)
-
+        else:
+            self.diffDrop.clear()
 
 
 
@@ -762,7 +763,7 @@ class DifficultySelection(QMainWindow):
 
         self.tempButton = QPushButton()
         self.tempButton.setText(text)
-        self.tempButton.setFont(QFont('Helvetica Neue', 8))
+        self.tempButton.setFont(QFont('Helvetica Neue', 4))
         self.tempButton.setFixedWidth(100)
         self.tempButton.setStyleSheet("QPushButton {"
                                       "background-color: #D0F4DE;"
@@ -789,6 +790,12 @@ class DifficultySelection(QMainWindow):
     def removeDiff(self):
         try:
 
+            if "Everything" in selectedDifficulties[len(selectedDifficulties)-1]:
+                self.diffDrop.clear()
+                for i in difficulties:
+                    self.diffDrop.addItem(i)
+            else:
+                self.diffDrop.addItem(selectedDifficulties[len(selectedDifficulties)-1])
 
             selectedDifficultiesButtons[len(selectedDifficultiesButtons)-1].hide()
             selectedDifficultiesButtons.pop()
@@ -824,3 +831,28 @@ class DifficultySelection(QMainWindow):
 
     def next(self):
         self.hide()
+
+class FindTossup(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        # for centering window
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
+
+        # init window
+        self.setWindowTitle("QuickBuzz")
+        self.setGeometry(qtRectangle)
+        self.setFixedWidth(600)
+        self.setFixedHeight(600)
+        self.setStyleSheet("background-color: #F9ADA0;")
+        self.setWindowIcon(QIcon("src/main/python/Icon.ico"))
+
+        # putting it together
+        self.widget = QWidget(self)
+        self.mainLayout = QVBoxLayout(self.widget)
+
+
+        self.setCentralWidget(self.widget)
