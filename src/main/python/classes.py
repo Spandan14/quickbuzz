@@ -1,3 +1,4 @@
+import random
 import time
 
 from PyQt5.QtWidgets import *
@@ -841,6 +842,7 @@ class DifficultySelection(QMainWindow):
 availableTossupIDS = []
 availableTossups = []
 availableAnswers = []
+availableTossupCategories = []
 
 class FindTossup(QMainWindow):
     def __init__(self):
@@ -913,12 +915,14 @@ class FindTossup(QMainWindow):
                                 dif = int(data[j + 3])
                                 tu = data[j+1]
                                 an = data[j+2]
+                                ca = filename.partition(".")[0]
                             except ValueError:
                                 continue
                             if dif in strippedDiffs or strippedDiffs == [10]:
                                 availableTossupIDS.append(id)
                                 availableTossups.append(tu)
                                 availableAnswers.append(an)
+                                availableTossupCategories.append(ca)
         else:
             for i in selectedSubCategories:
                 if "Everything" in i:
@@ -936,12 +940,14 @@ class FindTossup(QMainWindow):
                                             dif = int(data[j + 3])
                                             tu = data[j+1]
                                             an = data[j+2]
+                                            ca = filename.partition(".")[0]
                                         except ValueError:
                                             continue
                                         if dif in strippedDiffs or strippedDiffs == [10]:
                                             availableTossupIDS.append(id)
                                             availableTossups.append(tu)
                                             availableAnswers.append(an)
+                                            availableTossupCategories.append(ca)
                 else:
                     for file in os.listdir("src/main/python/quizdb"):
                         filename = os.fsdecode(file)
@@ -956,14 +962,159 @@ class FindTossup(QMainWindow):
                                             dif = int(data[j + 3])
                                             tu = data[j+1]
                                             an = data[j+2]
+                                            ca = filename.partition(".")[0]
                                         except ValueError:
                                             continue
                                         if dif in strippedDiffs or strippedDiffs == [10]:
                                             availableTossupIDS.append(id)
                                             availableTossups.append(tu)
                                             availableAnswers.append(an)
+                                            availableTossupCategories.append(ca)
 
         self.doneLabel = QLabel(f"{len(availableTossupIDS)} Tossups Found", self)
         self.doneLabel.setFont(QFont('Helvetica Neue', 24))
         self.doneLabel.setStyleSheet("color: black; margin: 50px;")
         self.mainLayout.addWidget(self.doneLabel, alignment=Qt.AlignCenter)
+
+        self.nextButton = QPushButton()
+        self.nextButton.setText("Next")
+        self.nextButton.setFont(QFont('Helvetica Neue', 20))
+        self.nextButton.setFixedWidth(300)
+        self.nextButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 25px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.nextButton.clicked.connect(self.next)
+        self.mainLayout.addWidget(self.nextButton, alignment=Qt.AlignCenter)
+
+    def next(self):
+        self.gameWin = SetupGame()
+        self.gameWin.show()
+        self.hide()
+
+numOfTu = 0
+gameTossups = []
+gameAnswers = []
+gameTossupCategories = []
+gameTossupIDs = []
+botDiff = 1
+
+class SetupGame(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        # for centering window
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
+
+        # init window
+        self.setWindowTitle("QuickBuzz")
+        self.setGeometry(qtRectangle)
+        self.setFixedWidth(600)
+        self.setFixedHeight(600)
+        self.setStyleSheet("background-color: #F9ADA0;")
+        self.setWindowIcon(QIcon("src/main/python/Icon.ico"))
+
+        self.titleLabel = QLabel(u"Bot Settings", self)
+        self.titleLabel.setFont(QFont('Helvetica Neue', 24))
+        self.titleLabel.setStyleSheet("color: black; margin: 50px;")
+
+        self.numTossups, self.okPressed = QInputDialog.getInt(self, "Number of Tossups", "Tossups to play:", 20, 1,
+                                                              len(availableTossups), 1)
+
+        self.diffRadio1 = QRadioButton("I'm too immature to lose")
+        self.diffRadio1.setChecked(True)
+        self.diffRadio1.diff = 1
+        self.diffRadio1.toggled.connect(self.diffClicked)
+        self.diffRadio1.setStyleSheet("font: 18pt Helvetica Neue")
+
+        self.diffRadio2 = QRadioButton("Noob")
+        self.diffRadio2.setChecked(False)
+        self.diffRadio2.diff = 2
+        self.diffRadio2.toggled.connect(self.diffClicked)
+        self.diffRadio2.setStyleSheet("font: 18pt Helvetica Neue")
+
+        self.diffRadio3 = QRadioButton("Mediocre")
+        self.diffRadio3.setChecked(False)
+        self.diffRadio3.diff = 3
+        self.diffRadio3.toggled.connect(self.diffClicked)
+        self.diffRadio3.setStyleSheet("font: 18pt Helvetica Neue")
+
+        self.diffRadio4 = QRadioButton("Captain")
+        self.diffRadio4.setChecked(False)
+        self.diffRadio4.diff = 4
+        self.diffRadio4.toggled.connect(self.diffClicked)
+        self.diffRadio4.setStyleSheet("font: 18pt Helvetica Neue")
+
+        self.diffRadio5 = QRadioButton("Pro")
+        self.diffRadio5.setChecked(False)
+        self.diffRadio5.diff = 5
+        self.diffRadio5.toggled.connect(self.diffClicked)
+        self.diffRadio5.setStyleSheet("font: 18pt Helvetica Neue")
+
+        self.nextButton = QPushButton()
+        self.nextButton.setText("Start Training")
+        self.nextButton.setFont(QFont('Helvetica Neue', 20))
+        self.nextButton.setFixedWidth(400)
+        self.nextButton.setStyleSheet("QPushButton {"
+                                      "background-color: #D0F4DE;"
+                                      "border-radius: 15px; "
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 25px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "border-radius: 15px;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.nextButton.clicked.connect(self.next)
+
+        # putting it together
+        self.widget = QWidget(self)
+        self.mainLayout = QVBoxLayout(self.widget)
+        self.mainLayout.addWidget(self.titleLabel, alignment=Qt.AlignCenter)
+
+        self.radioLayout = QGridLayout()
+        self.mainLayout.addLayout(self.radioLayout)
+
+        self.radioLayout.addWidget(self.diffRadio1, 1, 0)
+        self.radioLayout.addWidget(self.diffRadio2, 2, 0)
+        self.radioLayout.addWidget(self.diffRadio3, 3, 0)
+        self.radioLayout.addWidget(self.diffRadio4, 4, 0)
+        self.radioLayout.addWidget(self.diffRadio5, 5, 0)
+
+        self.mainLayout.addWidget(self.nextButton, alignment=Qt.AlignCenter)
+        self.setCentralWidget(self.widget)
+        self.facilitator()
+    def facilitator(self):
+        if self.okPressed:
+            randomTossupIndexes = []
+            for i in range(0,self.numTossups):
+                randomTossupIndexes.append(random.randint(0,len(availableTossups)-1))
+            for i in randomTossupIndexes:
+                gameTossups.append(availableTossups[i])
+                gameAnswers.append(availableAnswers[i])
+                gameTossupIDs.append(availableTossupIDS[i])
+                gameTossupCategories.append(availableTossupCategories[i])
+            print(gameTossupIDs)
+
+    def diffClicked(self):
+        self.diffRadio = self.sender()
+        botDiff = self.diffRadio.diff
+
+
+    def next(self):
+        self.hide()
