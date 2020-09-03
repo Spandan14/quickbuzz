@@ -1033,6 +1033,7 @@ class SetupGame(QMainWindow):
         self.numTossups, self.okPressed = QInputDialog.getInt(self, "Number of Tossups", "Tossups to play:", 20, 1,
                                                               len(availableTossups), 1)
 
+
         self.diffRadio1 = QRadioButton("I'm too immature to lose")
         self.diffRadio1.setChecked(True)
         self.diffRadio1.diff = 1
@@ -1100,21 +1101,109 @@ class SetupGame(QMainWindow):
         self.setCentralWidget(self.widget)
         self.facilitator()
     def facilitator(self):
-        if self.okPressed:
-            randomTossupIndexes = []
-            for i in range(0,self.numTossups):
-                randomTossupIndexes.append(random.randint(0,len(availableTossups)-1))
+        if self.okPressed == True and self.numTossups != 0:
+            randomTossupIndexes = random.sample(range(0,len(availableTossups)), self.numTossups)
             for i in randomTossupIndexes:
                 gameTossups.append(availableTossups[i])
                 gameAnswers.append(availableAnswers[i])
                 gameTossupIDs.append(availableTossupIDS[i])
                 gameTossupCategories.append(availableTossupCategories[i])
             print(gameTossupIDs)
+        else:
+            catReply = QMessageBox()
+            catReply.setIcon(QMessageBox.Warning)
+            catReply.setWindowTitle("QuickBuzz")
+            catReply.setText("There are no tossups to play. Closing application")
+            catReply.setStandardButtons(QMessageBox.Ok)
+            returnValue = catReply.exec()
+            if returnValue == QMessageBox.Ok:
+                print("ok")
+                self.close()
 
     def diffClicked(self):
         self.diffRadio = self.sender()
         botDiff = self.diffRadio.diff
 
-
     def next(self):
         self.hide()
+        self.startTrainWindow = TrainWindow()
+        self.startTrainWindow.show()
+
+#helper class for main
+class ScrollLabel(QScrollArea):
+    def __init__(self, *args, **kwargs):
+        QScrollArea.__init__(self, *args, **kwargs)
+        self.setWidgetResizable(True)
+
+        content = QWidget(self)
+        self.setWidget(content)
+
+        lay = QVBoxLayout(content)
+        self.label = QLabel(content)
+
+        self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.label.setWordWrap(True)
+
+        lay.addWidget(self.label)
+
+    def setText(self, text):
+        self.label.setText(text)
+
+class TrainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        # for centering window
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
+
+        # init window
+        self.setWindowTitle("QuickBuzz")
+        self.setGeometry(qtRectangle)
+        self.setFixedWidth(600)
+        self.setFixedHeight(600)
+        self.setStyleSheet("background-color: #D0F4DE;")
+        self.setWindowIcon(QIcon("src/main/python/Icon.ico"))
+
+        self.questionLabel = QLabel("", self)
+        self.questionLabel.setFont(QFont('Helvetica Neue', 10))
+        self.questionLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+        self.questionLabel.setWordWrap(True)
+        self.questionLabel.setFixedHeight(300)
+
+        
+
+
+
+        # putting it together
+        self.widget = QWidget(self)
+        self.mainLayout = QVBoxLayout(self.widget)
+        self.mainLayout.addWidget(self.questionLabel)
+        self.setCentralWidget(self.widget)
+        self.show()
+        qApp.processEvents()
+        self.writeTU()
+
+    def writeTU(self):
+        for i in range(0, len(gameTossups)):
+            currentTossup = gameTossups[i]
+            currentTossupWords = currentTossup.split(" ")
+            if "(*)" not in currentTossup:
+                currentTossupWords[len(currentTossupWords)//2] += ("(*)")
+            currentText = ""
+            power = True
+            for i in currentTossupWords:
+                if "(*)" in i:
+                    power = False
+                currentText += i + " "
+                if power:
+                    self.questionLabel.setStyleSheet("color: red; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+                else:
+                    self.questionLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+                self.questionLabel.setText(currentText)
+                qApp.processEvents()
+                time.sleep(0.125)
+            time.sleep(1)
+
