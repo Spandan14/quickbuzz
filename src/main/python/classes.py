@@ -429,9 +429,7 @@ class SubCategorySelection(QMainWindow):
         # dropdowns for category and subcategory
 
         self.subCategoryDrop = QComboBox(self)
-        if "Everything" in selectedCategories:
-            self.subCategoryDrop.addItem("Everything")
-        else:
+        if "Everything" not in selectedCategories:
             for i in selectedCategories:
                 for j in subcategories:
                     if i in j:
@@ -1101,7 +1099,7 @@ class SetupGame(QMainWindow):
         self.setCentralWidget(self.widget)
         self.facilitator()
     def facilitator(self):
-        if self.okPressed == True and self.numTossups != 0:
+        if self.okPressed and len(availableTossups) != 0:
             randomTossupIndexes = random.sample(range(0,len(availableTossups)), self.numTossups)
             for i in randomTossupIndexes:
                 gameTossups.append(availableTossups[i])
@@ -1129,26 +1127,6 @@ class SetupGame(QMainWindow):
         self.startTrainWindow = TrainWindow()
         self.startTrainWindow.show()
 
-#helper class for main
-class ScrollLabel(QScrollArea):
-    def __init__(self, *args, **kwargs):
-        QScrollArea.__init__(self, *args, **kwargs)
-        self.setWidgetResizable(True)
-
-        content = QWidget(self)
-        self.setWidget(content)
-
-        lay = QVBoxLayout(content)
-        self.label = QLabel(content)
-
-        self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.label.setWordWrap(True)
-
-        lay.addWidget(self.label)
-
-    def setText(self, text):
-        self.label.setText(text)
-
 class TrainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -1158,6 +1136,7 @@ class TrainWindow(QMainWindow):
         centerPoint = QDesktopWidget().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
         self.move(qtRectangle.topLeft())
+
 
         # init window
         self.setWindowTitle("QuickBuzz")
@@ -1173,7 +1152,62 @@ class TrainWindow(QMainWindow):
         self.questionLabel.setWordWrap(True)
         self.questionLabel.setFixedHeight(300)
 
-        
+        self.tossupLabel = QLabel("", self)
+        self.tossupLabel.setFont(QFont('Helvetica Neue', 8))
+        self.tossupLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+        self.tossupLabel.setWordWrap(True)
+        self.tossupLabel.setFixedHeight(25)
+
+        self.answerLabel = QLabel("", self)
+        self.answerLabel.setFont(QFont('Helvetica Neue', 8))
+        self.answerLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+        self.answerLabel.setWordWrap(True)
+        self.answerLabel.setFixedHeight(25)
+
+        self.humanTag = QLabel("You", self)
+        self.humanTag.setFont(QFont('Helvetica Neue', 8))
+        self.humanTag.setStyleSheet("color: black; margin-left: 10px; margin-top: 5px;"
+                                    "border: solid black;"
+                                    "border-width: 1px 0px 1px 1px;")
+        self.humanTag.setFixedHeight(25)
+        self.humanTag.setFixedWidth(120)
+        self.humanTag.setAlignment(Qt.AlignLeft)
+
+        self.scorehuman = QLabel("120", self)
+        self.scorehuman.setFont(QFont('Helvetica Neue', 8))
+        self.scorehuman.setStyleSheet("color: black; margin-top: 5px;"
+                                      "border: solid black;"
+                                      "border-width: 1px 1px 1px 0px;")
+        self.scorehuman.setFixedHeight(25)
+        self.scorehuman.setFixedWidth(120)
+        self.scorehuman.setAlignment(Qt.AlignRight)
+
+        self.tossupTimer = QLabel("Tossup")
+        self.tossupTimer.setFont(QFont('Helvetica Neue', 8))
+        self.tossupTimer.setStyleSheet("color: black; margin-top: 5px;"
+                                       "border: solid black;"
+                                       "border-width: 1px 0px 1px 1px")
+        self.tossupTimer.setFixedHeight(25)
+        self.tossupTimer.setFixedWidth(100)
+        self.tossupTimer.setAlignment(Qt.AlignCenter)
+
+        self.scorebot = QLabel("120", self)
+        self.scorebot.setFont(QFont('Helvetica Neue', 8))
+        self.scorebot.setStyleSheet("color: black; margin-top: 5px;"
+                                    "border: solid black;"
+                                    "border-width: 1px 0px 1px 1px;")
+        self.scorebot.setFixedHeight(25)
+        self.scorebot.setFixedWidth(120)
+        self.scorebot.setAlignment(Qt.AlignLeft)
+
+        self.botTag = QLabel(f"Bot {botDiff}", self)
+        self.botTag.setFont(QFont('Helvetica Neue', 8))
+        self.botTag.setStyleSheet("color: black; margin-right: 10px; margin-top: 5px;"
+                                  "border: solid black;"
+                                  "border-width: 1px 1px 1px 0px;")
+        self.botTag.setFixedHeight(25)
+        self.botTag.setFixedWidth(120)
+        self.botTag.setAlignment(Qt.AlignRight)
 
 
 
@@ -1181,6 +1215,31 @@ class TrainWindow(QMainWindow):
         self.widget = QWidget(self)
         self.mainLayout = QVBoxLayout(self.widget)
         self.mainLayout.addWidget(self.questionLabel)
+        self.mainLayout.addWidget(self.tossupLabel)
+        self.mainLayout.addWidget(self.answerLabel)
+
+        self.scoreLayout = QHBoxLayout(self.widget)
+
+        self.humanscore = QHBoxLayout(self.widget)
+        self.humanscore.addWidget(self.humanTag)
+        self.humanscore.addWidget(self.scorehuman)
+        self.humanscore.setSpacing(0)
+
+        self.botscore = QHBoxLayout(self.widget)
+        self.botscore.addWidget(self.scorebot)
+        self.botscore.addWidget(self.botTag)
+        self.botscore.setSpacing(0)
+
+        self.scoreLayout.addLayout(self.humanscore)
+        self.scoreLayout.addWidget(self.tossupTimer)
+        self.scoreLayout.addLayout(self.botscore)
+        self.scoreLayout.setSpacing(0)
+
+
+        self.mainLayout.addLayout(self.scoreLayout)
+
+        self.mainLayout.setSpacing(0)
+        self.mainLayout.addStretch(1)
         self.setCentralWidget(self.widget)
         self.show()
         qApp.processEvents()
@@ -1189,9 +1248,21 @@ class TrainWindow(QMainWindow):
     def writeTU(self):
         for i in range(0, len(gameTossups)):
             currentTossup = gameTossups[i]
+            currentTossupCategory = gameTossupCategories[i]
+            currentTossupID = gameTossupIDs[i]
+            currentAnswer = gameAnswers[i].split("\n")[0]
+            if "[" in currentAnswer:
+                currentAnswer = currentAnswer.split("[")[0]
+            if "(" in currentAnswer:
+                currentAnswer = currentAnswer.split("(")[0]
+            if "<" in currentAnswer:
+                currentAnswer = currentAnswer.split("(")[0]
+
+            self.tossupLabel.setText(f"Tossup {i+1} - {currentTossupID.split('-')[0]} - {currentTossupCategory}")
+            self.answerLabel.setText(f"Answer:")
             currentTossupWords = currentTossup.split(" ")
             if "(*)" not in currentTossup:
-                currentTossupWords[len(currentTossupWords)//2] += ("(*)")
+                currentTossupWords[len(currentTossupWords)//2] += "(*)"
             currentText = ""
             power = True
             for i in currentTossupWords:
@@ -1204,6 +1275,8 @@ class TrainWindow(QMainWindow):
                     self.questionLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
                 self.questionLabel.setText(currentText)
                 qApp.processEvents()
-                time.sleep(0.125)
-            time.sleep(1)
+                time.sleep(0.2)
+            self.answerLabel.setText(f"Answer: {currentAnswer}")
+            qApp.processEvents()
+            time.sleep(3)
 
