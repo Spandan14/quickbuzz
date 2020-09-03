@@ -1160,7 +1160,8 @@ class TrainWindow(QMainWindow):
 
         self.answerLabel = QLabel("", self)
         self.answerLabel.setFont(QFont('Helvetica Neue', 8))
-        self.answerLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+        self.answerLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black;"
+                                       "font: bold")
         self.answerLabel.setWordWrap(True)
         self.answerLabel.setFixedHeight(25)
 
@@ -1209,6 +1210,13 @@ class TrainWindow(QMainWindow):
         self.botTag.setFixedWidth(120)
         self.botTag.setAlignment(Qt.AlignRight)
 
+        self.statusWindow = QTextEdit()
+        self.statusWindow.setReadOnly(True)
+        self.statusWindow.setText("h\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\n")
+        self.statusWindow.setFont(QFont('Helvetica Neue', 8))
+        self.statusWindow.setStyleSheet("color: black; margin-right: 15px; margin-left: 15px; margin-top:5px;")
+        self.statusWindow.setFixedHeight(170)
+        self.statusWindow.setFixedWidth(580)
 
 
         # putting it together
@@ -1235,8 +1243,8 @@ class TrainWindow(QMainWindow):
         self.scoreLayout.addLayout(self.botscore)
         self.scoreLayout.setSpacing(0)
 
-
         self.mainLayout.addLayout(self.scoreLayout)
+        self.mainLayout.addWidget(self.statusWindow)
 
         self.mainLayout.setSpacing(0)
         self.mainLayout.addStretch(1)
