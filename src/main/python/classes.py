@@ -818,7 +818,7 @@ class DifficultySelection(QMainWindow):
             catReply = QMessageBox()
             catReply.setIcon(QMessageBox.Warning)
             catReply.setWindowTitle("QuickBuzz")
-            catReply.setText("There are no subcategories to remove")
+            catReply.setText("There are no difficulties to remove")
             catReply.setStandardButtons(QMessageBox.Ok)
 
             returnValue = catReply.exec()
@@ -1113,6 +1113,7 @@ class SetupGame(QMainWindow):
             catReply.setIcon(QMessageBox.Warning)
             catReply.setWindowTitle("QuickBuzz")
             catReply.setText("There are no tossups to play. Closing application")
+            self.close()
             catReply.setStandardButtons(QMessageBox.Ok)
             returnValue = catReply.exec()
             if returnValue == QMessageBox.Ok:
@@ -1152,7 +1153,7 @@ class TrainWindow(QMainWindow):
         self.setWindowTitle("QuickBuzz")
         self.setGeometry(qtRectangle)
         self.setFixedWidth(600)
-        self.setFixedHeight(600)
+        self.setFixedHeight(700)
         self.setStyleSheet("background-color: #D0F4DE;")
         self.setWindowIcon(QIcon("src/main/python/Icon.ico"))
 
@@ -1184,7 +1185,7 @@ class TrainWindow(QMainWindow):
         self.humanTag.setFixedWidth(120)
         self.humanTag.setAlignment(Qt.AlignLeft)
 
-        self.scorehuman = QLabel("120", self)
+        self.scorehuman = QLabel(f"{meScore}", self)
         self.scorehuman.setFont(QFont('Helvetica Neue', 8))
         self.scorehuman.setStyleSheet("color: black; margin-top: 5px;"
                                       "border: solid black;"
@@ -1243,6 +1244,34 @@ class TrainWindow(QMainWindow):
                                       "padding:15px;"
                                       "border-style: inset;"
                                       "}")
+        self.buzzButton.clicked.connect(self.meBuzz)
+
+        self.answerBox = QLineEdit(self)
+        self.answerBox.setFont(QFont('Helvetica Neue', 20))
+        self.answerBox.setFixedWidth(410)
+        self.answerBox.setDisabled(True)
+        self.answerBox.setStyleSheet("margin: 10px; padding: 5px;")
+        self.answerBox.setPlaceholderText("Answer")
+        self.answerBox.setFixedHeight(75)
+
+        self.answerButton = QPushButton()
+        self.answerButton.setText("Send")
+        self.answerButton.setFont(QFont('Helvetica Neue', 20))
+        self.answerButton.setFixedWidth(160)
+        self.answerButton.setStyleSheet("QPushButton {"
+                                      "background-color: #E4C1F9;"
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 10px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
+        self.answerButton.setDisabled(True)
+        self.answerButton.setFixedHeight(75)
+        self.answerButton.clicked.connect(self.sendAnswer)
 
         # putting it together
         self.widget = QWidget(self)
@@ -1272,6 +1301,12 @@ class TrainWindow(QMainWindow):
         self.mainLayout.addWidget(self.statusWindow)
         self.mainLayout.addWidget(self.buzzButton)
 
+        self.answerLayout = QHBoxLayout(self.widget)
+        self.answerLayout.addWidget(self.answerBox)
+        self.answerLayout.addWidget(self.answerButton)
+        self.answerLayout.setSpacing(0)
+
+        self.mainLayout.addLayout(self.answerLayout)
         self.mainLayout.setSpacing(0)
         self.mainLayout.addStretch(1)
         self.setCentralWidget(self.widget)
@@ -1309,6 +1344,13 @@ class TrainWindow(QMainWindow):
             self.buzzed = False
             self.currentBuzzResponse = ""
             for i in range(0,len(currentTossupWords)):
+                if i == 0:
+                    self.correct = False
+                    self.negged = False
+                    self.answerBox.setPlaceholderText("Answer")
+                    self.tossupTimer.setText("Tossup")
+                if self.correct:
+                    break
                 if not self.buzzed:
                     if "(*)" in currentTossupWords[i]:
                         power = False
@@ -1321,27 +1363,71 @@ class TrainWindow(QMainWindow):
                     qApp.processEvents()
                     time.sleep(0.2)
                 else:
+                    print(currentAnswer)
+                    self.answerSent = False
                     start = time.time()
-                    buzzthread = threading.Thread(target=self.showBuzz())
-                    while True:
+                    self.answerBox.setDisabled(False)
+                    self.answerButton.setDisabled(False)
+                    timeup = False
+                    while not timeup:
                         end = time.time()
-                        if (end - start >= 5):
-                            buzzthread.join()
-                            break
-                    if self.currentBuzzResponse.lower() == currentAnswer.lower():
-                        currenttext = currentTossup
+                        if end - start >= 5 or self.answerSent:
+                            print(self.answerBox.text())
+                            timeup = True
+
+                    global meScore
+                    if self.answerBox.text().lower().strip() == currentAnswer.lower().strip():
+                        currentText = currentTossup
+                        self.correct = True
+                        if power:
+                            meScore += 15
+                        else:
+                            meScore += 10
+                        self.answerBox.clear()
                         self.questionLabel.setText(currentText)
+                        self.scorehuman.setText(f"{meScore}")
+                        self.scorebot.setText(f"{botScore}")
+                        qApp.processEvents()
+                        break
+                    else:
+                        meScore -= 5
+                        i-=1
+                        print(meScore)
+                        self.negged = True
+                        self.answerBox.setPlaceholderText("Negged")
+                        self.answerBox.clear()
+                        self.scorehuman.setText(f"{meScore}")
+                        self.scorebot.setText(f"{botScore}")
+                        qApp.processEvents()
+                    self.buzzed = False
+                    self.buzzLockout = False
+                    self.answerBox.setDisabled(True)
+                    self.answerButton.setDisabled(True)
+                    qApp.processEvents()
 
-
-
+            if not self.correct:
+                self.tossupTimer.setText("3")
+                qApp.processEvents()
+                time.sleep(1)
+                self.tossupTimer.setText("2")
+                qApp.processEvents()
+                time.sleep(1)
+                self.tossupTimer.setText("1")
+                qApp.processEvents()
+                time.sleep(1)
+                self.tossupTimer.setText("0")
+                qApp.processEvents()
+                self.buzzLockout = True
             self.answerLabel.setText(f"Answer: {currentAnswer}")
             qApp.processEvents()
             time.sleep(3)
+            self.buzzLockout = False
 
     def meBuzz(self):
-        if not self.buzzLockout:
+        if not self.buzzLockout and not self.negged:
             self.buzzed = True
             self.buzzLockout = True
 
-    def showBuzz(self):
-        self.currentBuzzResponse = QInputDialog.getText(self, 'QuickBuzz', "Answer?: ")
+    def sendAnswer(self):
+        self.answerSent = True
+
