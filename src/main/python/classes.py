@@ -1608,7 +1608,8 @@ class TrainWindow(QMainWindow):
             print(botQDepth)
             time.sleep(3)
             self.buzzLockout = False
-        
+        self.writeData()
+
     def meBuzz(self):
         if not self.buzzLockout and not self.negged:
             self.buzzed = True
@@ -1622,5 +1623,14 @@ class TrainWindow(QMainWindow):
             self.meBuzz()
         if event.key() == Qt.Key_Return:
             self.sendAnswer()
+
+    def writeData(self):
+        with open(f"GameOf-{time.strftime('%Y%m%d-%H%M%S')}.txt", "w+") as datafile:
+            for i in range(0,len(meScoreByTossup)):
+                datafile.write(f"At Tossup {i+1}:\n"
+                               f"Your Score was: {meScoreByTossup[i]}\n"
+                               f"Bot Score was: {botScoreByTossup[i]}\n"
+                               f"Your QDepth was: {meQDepth[i]}\n"
+                               f"Bot QDepth was: {botQDepth[i]}\n\n")
 
 
