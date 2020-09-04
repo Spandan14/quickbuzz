@@ -1119,9 +1119,11 @@ class SetupGame(QMainWindow):
             if returnValue == QMessageBox.Ok:
                 print("ok")
                 self.close()
+                sys.exit()
 
     def diffClicked(self):
         self.diffRadio = self.sender()
+        global botDiff
         botDiff = self.diffRadio.diff
 
     def next(self):
@@ -1241,7 +1243,7 @@ class TrainWindow(QMainWindow):
         self.tossupTimer.setFixedWidth(100)
         self.tossupTimer.setAlignment(Qt.AlignCenter)
 
-        self.scorebot = QLabel("120", self)
+        self.scorebot = QLabel(f"{botScore}", self)
         self.scorebot.setFont(QFont('Helvetica Neue', 8))
         self.scorebot.setStyleSheet("color: black; margin-top: 5px;"
                                     "border: solid black;"
@@ -1387,17 +1389,67 @@ class TrainWindow(QMainWindow):
             self.buzzLockout = False
             self.buzzed = False
             self.currentBuzzResponse = ""
+            statusString += f"Now reading Tossup {i + 1}\n"
+            self.statusWindow.setText(statusString)
+            qApp.processEvents()
+            self.correct = False
+            self.negged = False
+            self.answerBox.setPlaceholderText("Answer")
+            self.tossupTimer.setText("Tossup")
+            botWordBuzz = -1
+            botNeg = 0
+            if botDiff == 1:
+                botNeg = random.choices([0,1], [.9, .1])
+                botWordBuzz = int(random.uniform(0.95, 0.99)*(len(currentTossupWords)-1))
+            elif botDiff == 2:
+                botWordBuzz = int(random.uniform(0.8, 0.95)*(len(currentTossupWords)-1))
+                botNeg = random.choices([0,1], [.92, .08])
+            elif botDiff == 3:
+                botWordBuzz = int(random.uniform(0.6, 0.8)*(len(currentTossupWords)-1))
+                botNeg = random.choices([0,1], [.95, .05])
+            elif botDiff == 4:
+                botWordBuzz = int(random.uniform(0.4, 0.6)*(len(currentTossupWords)-1))
+                botNeg = random.choices([0,1], [.97, .03])
+            elif botDiff == 5:
+                botWordBuzz = int(random.uniform(0.2, 0.4)*(len(currentTossupWords)-1))
+                botNeg = random.choices([0,1], [.99, .01])
             for j in range(0,len(currentTossupWords)):
-                if j == 0:
-                    statusString += f"Now reading Tossup {i+1}\n"
-                    self.statusWindow.setText(statusString)
-                    qApp.processEvents()
-                    self.correct = False
-                    self.negged = False
-                    self.answerBox.setPlaceholderText("Answer")
-                    self.tossupTimer.setText("Tossup")
                 if self.correct:
                     break
+                if j == botWordBuzz:
+                    statusString += f"Bot {botDiff} buzzed!\n"
+                    self.statusWindow.setText(statusString)
+                    time.sleep(1)
+                    if botNeg == [0]:
+                        self.correct = True
+                        currentText = currentTossup
+                        statusString += f"Bot {botDiff} answered with {currentAnswer}.\n"
+                        self.statusWindow.setText(statusString)
+                        qApp.processEvents()
+                        if power:
+                            botScore += 15
+                            statusString += f"Bot {botDiff} was correct! For Power! +15 for Bot.\n"
+
+                            self.statusWindow.setText(statusString)
+                            qApp.processEvents()
+                        else:
+                            botScore += 10
+                            statusString += f"Bot {botDiff} was correct! +10 for Bot.\n"
+                            self.statusWindow.setText(statusString)
+                            qApp.processEvents()
+                        self.questionLabel.setText(currentText)
+                        self.scorehuman.setText(f"{meScore}")
+                        self.scorebot.setText(f"{botScore}")
+                        qApp.processEvents()
+                    else:
+                        print("w")
+                        statusString += f"Bot {botDiff} answered with uhhh.\n"
+                        statusString += f"Bot {botDiff} negged! -5 for Bot.\n"
+                        self.statusWindow.setText(statusString)
+                        self.scorehuman.setText(f"{meScore}")
+                        self.scorebot.setText(f"{botScore}")
+                        qApp.processEvents()
+
                 if not self.buzzed:
                     if "(*)" in currentTossupWords[j]:
                         power = False
@@ -1410,7 +1462,6 @@ class TrainWindow(QMainWindow):
                     qApp.processEvents()
                     time.sleep(0.2)
                 else:
-                    print(currentAnswer)
                     statusString += "Player buzzed!\n"
 
                     self.statusWindow.setText(statusString)
@@ -1428,7 +1479,6 @@ class TrainWindow(QMainWindow):
 
                     statusString += f"Player answered with {self.answerBox.text().strip()}.\n"
                     self.statusWindow.setText(statusString)
-                    global meScore
                     if self.answerBox.text().lower().strip() == currentAnswer.lower().strip():
                         currentText = currentTossup
                         self.correct = True
@@ -1475,7 +1525,6 @@ class TrainWindow(QMainWindow):
                 start = time.time()
                 while True:
                     if self.buzzed:
-                        print(currentAnswer)
                         statusString += "Player buzzed!\n"
 
                         self.statusWindow.setText(statusString)
