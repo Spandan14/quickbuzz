@@ -1129,6 +1129,42 @@ class SetupGame(QMainWindow):
         self.startTrainWindow = TrainWindow()
         self.startTrainWindow.show()
 
+
+class ScrollLabel(QScrollArea):
+
+    # constructor
+    def __init__(self, *args, **kwargs):
+        QScrollArea.__init__(self, *args, **kwargs)
+
+        # making widget resizable
+        self.setWidgetResizable(True)
+
+        # making qwidget object
+        content = QWidget(self)
+        self.setWidget(content)
+
+        # vertical box layout
+        lay = QVBoxLayout(content)
+
+        # creating label
+        self.label = QLabel(content)
+
+        # setting alignment to the text
+        self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        # making label multi-line
+        self.label.setWordWrap(True)
+
+        self.label.setFont(QFont('Helvetica Neue', 8))
+        # adding label to the layout
+        lay.addWidget(self.label)
+
+        # the setText method
+
+    def setText(self, text):
+        # setting text to the label
+        self.label.setText(text)
+
 botScore = 0
 meScore = 0
 botScoreByTossup = []
@@ -1137,6 +1173,8 @@ botQDepth = []
 meQDepth = []
 botStat = [] # 0 - no buzz, 1 - correct, 2 - power, -1 - neg
 meStat = []
+
+statusString = ""
 
 class TrainWindow(QMainWindow):
     def __init__(self):
@@ -1221,10 +1259,8 @@ class TrainWindow(QMainWindow):
         self.botTag.setFixedWidth(120)
         self.botTag.setAlignment(Qt.AlignRight)
 
-        self.statusWindow = QTextEdit()
-        self.statusWindow.setReadOnly(True)
-        self.statusWindow.setText("")
-        self.statusWindow.setFont(QFont('Helvetica Neue', 8))
+        self.statusWindow = ScrollLabel()
+        self.statusWindow.setText(f"{statusString}")
         self.statusWindow.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; margin-top:5px;")
         self.statusWindow.setFixedHeight(170)
         self.statusWindow.setFixedWidth(580)
@@ -1319,7 +1355,15 @@ class TrainWindow(QMainWindow):
         tuthread.daemon = True
         tuthread.start()
 
+
     def writeTU(self):
+        global statusString
+        global meScore
+        global botScore
+        statusString += "Welcome to QuickBuzz Trainer.\nPress spacebar to buzz.\nPress enter to submit your answer\n" \
+                             "Good luck!\n" \
+                             f"You are facing Bot {botDiff}!\n"
+        self.statusWindow.setText(statusString)
         for i in range(0, len(gameTossups)):
             self.buzzLockout = True
             currentTossup = gameTossups[i]
@@ -1343,8 +1387,11 @@ class TrainWindow(QMainWindow):
             self.buzzLockout = False
             self.buzzed = False
             self.currentBuzzResponse = ""
-            for i in range(0,len(currentTossupWords)):
-                if i == 0:
+            for j in range(0,len(currentTossupWords)):
+                if j == 0:
+                    statusString += f"Now reading Tossup {i+1}\n"
+                    self.statusWindow.setText(statusString)
+                    qApp.processEvents()
                     self.correct = False
                     self.negged = False
                     self.answerBox.setPlaceholderText("Answer")
@@ -1352,9 +1399,9 @@ class TrainWindow(QMainWindow):
                 if self.correct:
                     break
                 if not self.buzzed:
-                    if "(*)" in currentTossupWords[i]:
+                    if "(*)" in currentTossupWords[j]:
                         power = False
-                    currentText += currentTossupWords[i] + " "
+                    currentText += currentTossupWords[j] + " "
                     if power:
                         self.questionLabel.setStyleSheet("color: red; margin-right: 10px; margin-left: 10px; border: 1px solid black")
                     else:
@@ -1364,6 +1411,10 @@ class TrainWindow(QMainWindow):
                     time.sleep(0.2)
                 else:
                     print(currentAnswer)
+                    statusString += "Player buzzed!\n"
+
+                    self.statusWindow.setText(statusString)
+                    qApp.processEvents()
                     self.answerSent = False
                     start = time.time()
                     self.answerBox.setDisabled(False)
@@ -1375,14 +1426,24 @@ class TrainWindow(QMainWindow):
                             print(self.answerBox.text())
                             timeup = True
 
+                    statusString += f"Player answered with {self.answerBox.text().strip()}.\n"
+                    self.statusWindow.setText(statusString)
                     global meScore
                     if self.answerBox.text().lower().strip() == currentAnswer.lower().strip():
                         currentText = currentTossup
                         self.correct = True
                         if power:
                             meScore += 15
+                            statusString += "Player was correct! For Power! +15 for Player.\n"
+
+                            self.statusWindow.setText(statusString)
+                            qApp.processEvents()
                         else:
                             meScore += 10
+                            statusString += "Player was correct! +10 for Player.\n"
+
+                            self.statusWindow.setText(statusString)
+                            qApp.processEvents()
                         self.answerBox.clear()
                         self.questionLabel.setText(currentText)
                         self.scorehuman.setText(f"{meScore}")
@@ -1391,10 +1452,15 @@ class TrainWindow(QMainWindow):
                         break
                     else:
                         meScore -= 5
+                        statusString += "Player negged! -5 for Player.\n"
+
+                        self.statusWindow.setText(statusString)
+                        qApp.processEvents()
                         i-=1
                         print(meScore)
                         self.negged = True
                         self.answerBox.setPlaceholderText("Negged")
+
                         self.answerBox.clear()
                         self.scorehuman.setText(f"{meScore}")
                         self.scorebot.setText(f"{botScore}")
@@ -1406,17 +1472,79 @@ class TrainWindow(QMainWindow):
                     qApp.processEvents()
 
             if not self.correct:
-                self.tossupTimer.setText("3")
-                qApp.processEvents()
-                time.sleep(1)
-                self.tossupTimer.setText("2")
-                qApp.processEvents()
-                time.sleep(1)
-                self.tossupTimer.setText("1")
-                qApp.processEvents()
-                time.sleep(1)
-                self.tossupTimer.setText("0")
-                qApp.processEvents()
+                start = time.time()
+                while True:
+                    if self.buzzed:
+                        print(currentAnswer)
+                        statusString += "Player buzzed!\n"
+
+                        self.statusWindow.setText(statusString)
+                        qApp.processEvents()
+                        self.answerSent = False
+                        astart = time.time()
+                        self.answerBox.setDisabled(False)
+                        self.answerButton.setDisabled(False)
+                        timeup = False
+                        while not timeup:
+                            aend = time.time()
+                            if aend - astart >= 5 or self.answerSent:
+                                print(self.answerBox.text())
+                                timeup = True
+
+                        statusString += f"Player answered with {self.answerBox.text().strip()}.\n"
+                        self.statusWindow.setText(statusString)
+
+                        if self.answerBox.text().lower().strip() == currentAnswer.lower().strip():
+                            currentText = currentTossup
+                            self.correct = True
+                            if power:
+                                meScore += 15
+                                statusString += "Player was correct! For Power! +15 for Player.\n"
+
+                                self.statusWindow.setText(statusString)
+                                qApp.processEvents()
+                            else:
+                                meScore += 10
+                                statusString += "Player was correct! +10 for Player.\n"
+
+                                self.statusWindow.setText(statusString)
+                                qApp.processEvents()
+                            self.answerBox.clear()
+                            self.questionLabel.setText(currentText)
+                            self.scorehuman.setText(f"{meScore}")
+                            self.scorebot.setText(f"{botScore}")
+                            qApp.processEvents()
+                            break
+                        else:
+                            meScore -= 5
+                            statusString += "Player negged! -5 for Player.\n"
+
+                            self.statusWindow.setText(statusString)
+                            qApp.processEvents()
+                            i -= 1
+                            print(meScore)
+                            self.negged = True
+                            self.answerBox.setPlaceholderText("Negged")
+
+                            self.answerBox.clear()
+                            self.scorehuman.setText(f"{meScore}")
+                            self.scorebot.setText(f"{botScore}")
+                            qApp.processEvents()
+                        self.buzzed = False
+                        self.buzzLockout = False
+                        self.answerBox.setDisabled(True)
+                        self.answerButton.setDisabled(True)
+                        qApp.processEvents()
+                    end = time.time()
+                    if end - start >= 3:
+                        self.tossupTimer.setText("0")
+                        break
+                    elif end - start >= 2:
+                        self.tossupTimer.setText("1")
+                    elif end - start >= 1:
+                        self.tossupTimer.setText("2")
+                    elif end - start >= 0:
+                        self.tossupTimer.setText("3")
                 self.buzzLockout = True
             self.answerLabel.setText(f"Answer: {currentAnswer}")
             qApp.processEvents()
@@ -1430,4 +1558,5 @@ class TrainWindow(QMainWindow):
 
     def sendAnswer(self):
         self.answerSent = True
+
 
