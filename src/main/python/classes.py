@@ -1173,8 +1173,6 @@ botScoreByTossup = []
 meScoreByTossup = []
 botQDepth = []
 meQDepth = []
-botStat = [] # 0 - no buzz, 1 - correct, 2 - power, -1 - neg
-meStat = []
 
 statusString = ""
 
@@ -1417,6 +1415,7 @@ class TrainWindow(QMainWindow):
                 if self.correct:
                     break
                 if j == botWordBuzz:
+                    botQDepth.append((100*(j+1)/len(currentTossupWords)))
                     statusString += f"Bot {botDiff} buzzed!\n"
                     self.statusWindow.setText(statusString)
                     time.sleep(1)
@@ -1442,9 +1441,9 @@ class TrainWindow(QMainWindow):
                         self.scorebot.setText(f"{botScore}")
                         qApp.processEvents()
                     else:
-                        print("w")
                         statusString += f"Bot {botDiff} answered with uhhh.\n"
                         statusString += f"Bot {botDiff} negged! -5 for Bot.\n"
+                        botScore -= 5
                         self.statusWindow.setText(statusString)
                         self.scorehuman.setText(f"{meScore}")
                         self.scorebot.setText(f"{botScore}")
@@ -1462,6 +1461,7 @@ class TrainWindow(QMainWindow):
                     qApp.processEvents()
                     time.sleep(0.2)
                 else:
+                    meQDepth.append((100*(j+1)/len(currentTossupWords)))
                     statusString += "Player buzzed!\n"
 
                     self.statusWindow.setText(statusString)
@@ -1525,6 +1525,7 @@ class TrainWindow(QMainWindow):
                 start = time.time()
                 while True:
                     if self.buzzed:
+                        meQDepth.append(100)
                         statusString += "Player buzzed!\n"
 
                         self.statusWindow.setText(statusString)
@@ -1597,9 +1598,17 @@ class TrainWindow(QMainWindow):
                 self.buzzLockout = True
             self.answerLabel.setText(f"Answer: {currentAnswer}")
             qApp.processEvents()
+            botScoreByTossup.append(botScore)
+            meScoreByTossup.append(meScore)
+            if len(meQDepth) < i+1:
+                meQDepth.append(-1)
+            if len(botQDepth) < i+1:
+                botQDepth.append(-1)
+            print(meQDepth)
+            print(botQDepth)
             time.sleep(3)
             self.buzzLockout = False
-
+        
     def meBuzz(self):
         if not self.buzzLockout and not self.negged:
             self.buzzed = True
