@@ -6,8 +6,10 @@ To install QuickBuzz, you will need some dependencies
 ### Dependencies
   * Python 3.8
     * To install, go to the [Python downloads](https://www.python.org/downloads/)
+    * Make sure to select the **add to PATH** option when installing, or else you will need to add Python to PATH manually!
   * PyQt5
     * To install, look at [this page](https://pypi.org/project/PyQt5/)
+    * Remember, pip commands should be run from a terminal-like shell - this means command prompt on Windows, bash on Mac, and the terminal on Linux!
   * requests and tqdm (optional, only if you plan to redownload QuizDB Database, which is **not recommended**)
   * A brain (**highly recommended**)
 ### Steps
