@@ -1608,4 +1608,10 @@ class TrainWindow(QMainWindow):
     def sendAnswer(self):
         self.answerSent = True
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Space:
+            self.meBuzz()
+        if event.key() == Qt.Key_Return:
+            self.sendAnswer()
+
 
