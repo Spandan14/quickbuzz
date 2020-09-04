@@ -1,4 +1,5 @@
 import random
+import threading
 import time
 
 from PyQt5.QtWidgets import *
@@ -177,7 +178,7 @@ subcategories = ["Current Events American", "Current Events Other", "Fine Arts A
                  , "Religion Judaism", "Religion Other", "Science American", "Science Biology", "Science Chemistry"
                  , "Science Computer Science", "Science Math", "Science Other", "Science Physics", "Science World"
                  , "Social Studies American", "Social Studies Anthropology", "Social Studies Economics"
-                 , "Social Studies Linguistics", "Social Studies Other", "Social Studies Political Science"
+                 , "Social Studies Linguistics", "Social Studies Other", "Social Studies Political Studies"
                  , "Social Studies Psychology", "Social Studies Sociology", "Trash American", "Trash Movies"
                  , "Trash Music", "Trash Other", "Trash Sports", "Trash Television", "Trash Video Games"
                  , "Everything"]
@@ -1127,6 +1128,15 @@ class SetupGame(QMainWindow):
         self.startTrainWindow = TrainWindow()
         self.startTrainWindow.show()
 
+botScore = 0
+meScore = 0
+botScoreByTossup = []
+meScoreByTossup = []
+botQDepth = []
+meQDepth = []
+botStat = [] # 0 - no buzz, 1 - correct, 2 - power, -1 - neg
+meStat = []
+
 class TrainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -1212,12 +1222,27 @@ class TrainWindow(QMainWindow):
 
         self.statusWindow = QTextEdit()
         self.statusWindow.setReadOnly(True)
-        self.statusWindow.setText("h\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\nh\n")
+        self.statusWindow.setText("")
         self.statusWindow.setFont(QFont('Helvetica Neue', 8))
-        self.statusWindow.setStyleSheet("color: black; margin-right: 15px; margin-left: 15px; margin-top:5px;")
+        self.statusWindow.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; margin-top:5px;")
         self.statusWindow.setFixedHeight(170)
         self.statusWindow.setFixedWidth(580)
 
+        self.buzzButton = QPushButton()
+        self.buzzButton.setText("Buzz")
+        self.buzzButton.setFont(QFont('Helvetica Neue', 20))
+        self.buzzButton.setFixedWidth(580)
+        self.buzzButton.setStyleSheet("QPushButton {"
+                                      "background-color: #E4C1F9;"
+                                      "padding: 15px; "
+                                      "border-style: outset;"
+                                      "margin: 10px"
+                                      "}"
+                                      "QPushButton:pressed {"
+                                      "background-color: #A9DEF9;"
+                                      "padding:15px;"
+                                      "border-style: inset;"
+                                      "}")
 
         # putting it together
         self.widget = QWidget(self)
@@ -1245,16 +1270,23 @@ class TrainWindow(QMainWindow):
 
         self.mainLayout.addLayout(self.scoreLayout)
         self.mainLayout.addWidget(self.statusWindow)
+        self.mainLayout.addWidget(self.buzzButton)
 
         self.mainLayout.setSpacing(0)
         self.mainLayout.addStretch(1)
         self.setCentralWidget(self.widget)
         self.show()
+        self.buzzed = False
+        self.buzzLockout = True
+        self.currentBuzzResponse = ""
         qApp.processEvents()
-        self.writeTU()
+        tuthread = threading.Thread(target=self.writeTU)
+        tuthread.daemon = True
+        tuthread.start()
 
     def writeTU(self):
         for i in range(0, len(gameTossups)):
+            self.buzzLockout = True
             currentTossup = gameTossups[i]
             currentTossupCategory = gameTossupCategories[i]
             currentTossupID = gameTossupIDs[i]
@@ -1273,18 +1305,43 @@ class TrainWindow(QMainWindow):
                 currentTossupWords[len(currentTossupWords)//2] += "(*)"
             currentText = ""
             power = True
-            for i in currentTossupWords:
-                if "(*)" in i:
-                    power = False
-                currentText += i + " "
-                if power:
-                    self.questionLabel.setStyleSheet("color: red; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+            self.buzzLockout = False
+            self.buzzed = False
+            self.currentBuzzResponse = ""
+            for i in range(0,len(currentTossupWords)):
+                if not self.buzzed:
+                    if "(*)" in currentTossupWords[i]:
+                        power = False
+                    currentText += currentTossupWords[i] + " "
+                    if power:
+                        self.questionLabel.setStyleSheet("color: red; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+                    else:
+                        self.questionLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
+                    self.questionLabel.setText(currentText)
+                    qApp.processEvents()
+                    time.sleep(0.2)
                 else:
-                    self.questionLabel.setStyleSheet("color: black; margin-right: 10px; margin-left: 10px; border: 1px solid black")
-                self.questionLabel.setText(currentText)
-                qApp.processEvents()
-                time.sleep(0.2)
+                    start = time.time()
+                    buzzthread = threading.Thread(target=self.showBuzz())
+                    while True:
+                        end = time.time()
+                        if (end - start >= 5):
+                            buzzthread.join()
+                            break
+                    if self.currentBuzzResponse.lower() == currentAnswer.lower():
+                        currenttext = currentTossup
+                        self.questionLabel.setText(currentText)
+
+
+
             self.answerLabel.setText(f"Answer: {currentAnswer}")
             qApp.processEvents()
             time.sleep(3)
 
+    def meBuzz(self):
+        if not self.buzzLockout:
+            self.buzzed = True
+            self.buzzLockout = True
+
+    def showBuzz(self):
+        self.currentBuzzResponse = QInputDialog.getText(self, 'QuickBuzz', "Answer?: ")
