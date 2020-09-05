@@ -353,8 +353,6 @@ class CategorySelection(QMainWindow):
                                       "border-style: inset;"
                                       "}")
         self.secondHor.addWidget(self.tempButton, self.gridx, self.gridy)
-        print(self.gridx)
-        print(self.gridy)
         self.gridy += 1
         if self.gridy % 5 == 0 and self.gridy > 0:
             self.gridx += 1
@@ -380,7 +378,6 @@ class CategorySelection(QMainWindow):
 
             returnValue = catReply.exec()
             if returnValue == QMessageBox.Ok:
-                print("ok")
 
 
         self.categoryDrop.clear()
@@ -407,7 +404,6 @@ class CategorySelection(QMainWindow):
         self.nextwindow.show()
         self.gridx = 0
         self.gridy = 0
-        print(selectedCategories)
 
 class SubCategorySelection(QMainWindow):
     def __init__(self):
@@ -531,11 +527,8 @@ class SubCategorySelection(QMainWindow):
                     self.subCategoryDrop.removeItem(i)
         if "Everything" in text:
             temp = text.split(" ")
-            print(temp)
             i = self.subCategoryDrop.count()
             while i >= 0:
-                print(self.subCategoryDrop.itemText(i))
-                print(i)
                 if temp[1] in self.subCategoryDrop.itemText(i):
                     self.subCategoryDrop.removeItem(i)
                     i+=1
@@ -567,8 +560,6 @@ class SubCategorySelection(QMainWindow):
                                       "border-style: inset;"
                                       "}")
         self.secondHor.addWidget(self.tempButton, self.gridx, self.gridy)
-        print(self.gridx)
-        print(self.gridy)
         self.gridy += 1
         if self.gridy % 5 == 0 and self.gridy > 0:
             self.gridx += 1
@@ -626,7 +617,6 @@ class SubCategorySelection(QMainWindow):
 
             returnValue = catReply.exec()
             if returnValue == QMessageBox.Ok:
-                print("ok")
 
 
 
@@ -639,7 +629,6 @@ class SubCategorySelection(QMainWindow):
         self.hide()
         self.diffwindow = DifficultySelection()
         self.diffwindow.show()
-        print(selectedSubCategories)
 
 
 class DifficultySelection(QMainWindow):
@@ -783,8 +772,6 @@ class DifficultySelection(QMainWindow):
                                       "border-style: inset;"
                                       "}")
         self.secondHor.addWidget(self.tempButton, self.gridx, self.gridy)
-        print(self.gridx)
-        print(self.gridy)
         self.gridy += 1
         if self.gridy % 5 == 0 and self.gridy > 0:
             self.gridx += 1
@@ -823,7 +810,6 @@ class DifficultySelection(QMainWindow):
 
             returnValue = catReply.exec()
             if returnValue == QMessageBox.Ok:
-                print("ok")
 
 
 
@@ -899,13 +885,10 @@ class FindTossup(QMainWindow):
                 break
             else:
                 strippedDiffs.append(int(i[0:1]))
-        print(strippedDiffs)
-        print(selectedSubCategories)
         if "Everything" in selectedCategories:
-            for file in os.listdir("src/main/python/quizdb"):
+            for file in os.listdir("quizdb"):
                 filename = os.fsdecode(file)
-                print(filename)
-                with open(f"src/main/python/quizdb/{filename}", mode="r") as f:
+                with open(f"quizdb/{filename}", mode="r") as f:
                     data = f.readlines()
                     for j in range(0, len(data)):
                         if "-)" in data[j]:
@@ -926,11 +909,10 @@ class FindTossup(QMainWindow):
             for i in selectedSubCategories:
                 if "Everything" in i:
                     temp = i.split(" ")
-                    for file in os.listdir("src/main/python/quizdb"):
+                    for file in os.listdir("quizdb"):
                         filename = os.fsdecode(file)
                         if temp[1] in filename:
-                            print(filename)
-                            with open(f"src/main/python/quizdb/{filename}", mode="r") as f:
+                            with open(f"quizdb/{filename}", mode="r") as f:
                                 data = f.readlines()
                                 for j in range(0, len(data)):
                                     if "-)" in data[j]:
@@ -948,11 +930,10 @@ class FindTossup(QMainWindow):
                                             availableAnswers.append(an)
                                             availableTossupCategories.append(ca)
                 else:
-                    for file in os.listdir("src/main/python/quizdb"):
+                    for file in os.listdir("quizdb"):
                         filename = os.fsdecode(file)
                         if i in filename:
-                            print(filename)
-                            with open(f"src/main/python/quizdb/{filename}", mode="r") as f:
+                            with open(f"quizdb/{filename}", mode="r") as f:
                                 data = f.readlines()
                                 for j in range(0, len(data)):
                                     if "-)" in data[j]:
@@ -1107,7 +1088,6 @@ class SetupGame(QMainWindow):
                 gameAnswers.append(availableAnswers[i])
                 gameTossupIDs.append(availableTossupIDS[i])
                 gameTossupCategories.append(availableTossupCategories[i])
-            print(gameTossupIDs)
         else:
             catReply = QMessageBox()
             catReply.setIcon(QMessageBox.Warning)
@@ -1117,7 +1097,6 @@ class SetupGame(QMainWindow):
             catReply.setStandardButtons(QMessageBox.Ok)
             returnValue = catReply.exec()
             if returnValue == QMessageBox.Ok:
-                print("ok")
                 self.close()
                 sys.exit()
 
@@ -1474,7 +1453,6 @@ class TrainWindow(QMainWindow):
                     while not timeup:
                         end = time.time()
                         if end - start >= 5 or self.answerSent:
-                            print(self.answerBox.text())
                             timeup = True
 
                     statusString += f"Player answered with {self.answerBox.text().strip()}.\n"
@@ -1507,7 +1485,6 @@ class TrainWindow(QMainWindow):
                         self.statusWindow.setText(statusString)
                         qApp.processEvents()
                         i-=1
-                        print(meScore)
                         self.negged = True
                         self.answerBox.setPlaceholderText("Negged")
 
@@ -1538,7 +1515,6 @@ class TrainWindow(QMainWindow):
                         while not timeup:
                             aend = time.time()
                             if aend - astart >= 5 or self.answerSent:
-                                print(self.answerBox.text())
                                 timeup = True
 
                         statusString += f"Player answered with {self.answerBox.text().strip()}.\n"
@@ -1572,7 +1548,6 @@ class TrainWindow(QMainWindow):
                             self.statusWindow.setText(statusString)
                             qApp.processEvents()
                             i -= 1
-                            print(meScore)
                             self.negged = True
                             self.answerBox.setPlaceholderText("Negged")
 
@@ -1604,8 +1579,6 @@ class TrainWindow(QMainWindow):
                 meQDepth.append(-1)
             if len(botQDepth) < i+1:
                 botQDepth.append(-1)
-            print(meQDepth)
-            print(botQDepth)
             time.sleep(3)
             self.buzzLockout = False
         self.writeData()
