@@ -302,7 +302,6 @@ class CategorySelection(QMainWindow):
 
         for i in selectedCategoryButtons:
             if "Everything" in selectedCategories:
-                self.categoryDrop.setPlaceholderText("Everything")
                 self.categoryDrop.clear()
             self.secondHor.addWidget(i, self.gridx, self.gridy)
             self.gridy += 1
@@ -321,7 +320,6 @@ class CategorySelection(QMainWindow):
         self.setCentralWidget(self.widget)
 
     def dropDownChangedCategory(self, text):
-        self.categoryDrop.setPlaceholderText(text)
         self.categoryDrop.adjustSize()
         self.categoryDrop.clear()
         global selectedCategories, selectedCategoryButtons
@@ -539,7 +537,6 @@ class SubCategorySelection(QMainWindow):
 
         selectedSubCategories.append(text)
 
-        self.subCategoryDrop.setPlaceholderText(text)
 
         self.tempButton = QPushButton()
         self.tempButton.setText(text)
@@ -740,7 +737,6 @@ class DifficultySelection(QMainWindow):
         self.setCentralWidget(self.widget)
 
     def dropDownChangedDifficulty(self, text):
-        self.diffDrop.setPlaceholderText(text)
         if "Everything" not in text:
             for i in range(self.diffDrop.count()):
                 if "Everything" in self.diffDrop.itemText(i) or text == self.diffDrop.itemText(i):
