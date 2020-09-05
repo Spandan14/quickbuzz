@@ -377,7 +377,6 @@ class CategorySelection(QMainWindow):
             catReply.setStandardButtons(QMessageBox.Ok)
 
             returnValue = catReply.exec()
-            if returnValue == QMessageBox.Ok:
 
 
         self.categoryDrop.clear()
@@ -616,7 +615,6 @@ class SubCategorySelection(QMainWindow):
             catReply.setStandardButtons(QMessageBox.Ok)
 
             returnValue = catReply.exec()
-            if returnValue == QMessageBox.Ok:
 
 
 
@@ -809,7 +807,6 @@ class DifficultySelection(QMainWindow):
             catReply.setStandardButtons(QMessageBox.Ok)
 
             returnValue = catReply.exec()
-            if returnValue == QMessageBox.Ok:
 
 
 
