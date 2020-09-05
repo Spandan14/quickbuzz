@@ -1480,8 +1480,6 @@ class TrainWindow(QMainWindow):
                         i-=1
                         self.negged = True
                         self.answerBox.setPlaceholderText("Negged")
-
-                        self.answerBox.clear()
                         self.scorehuman.setText(f"{meScore}")
                         self.scorebot.setText(f"{botScore}")
                         qApp.processEvents()
