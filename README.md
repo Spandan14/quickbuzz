@@ -4,7 +4,7 @@ QuickBuzz is a **dynamic quizbowl/scholastic bowl** training application. QuickB
 ## Installation Method
 To install QuickBuzz, you will need some dependencies
 ### Dependencies
-  * Python 3.8
+  * Python 3.8 - **64 bit**
     * To install, go to the [Python downloads](https://www.python.org/downloads/)
     * Make sure to select the **add to PATH** option when installing, or else you will need to add Python to PATH manually!
   * PyQt5
