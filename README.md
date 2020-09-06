@@ -26,6 +26,7 @@ Start training with QuickBuzz!
 You can select multiple of these. Simply use the dropdown to add them. You should see a small button like widget pop up on the screen. This lets you know that you have selected the right category/subcategory/difficulty. To remove the last added option, use the button above the dropdown.
 ### Looking for tossups
 Press the look for tossups button to find tossups to play with that meet your requirements. **Note: if QuickBuzz shows 0 Tossups available, please exit the application and use different settings. It is rare for this to happen as the databse is rather large, but this will cause the app to not function properly**
+The time taken to look for tossups may be longer based on the speed of your drive i.e. a hard drive will load them slower than solid state. The maximum load time (if you load all tossups) shouldn't be longer than about 15 seconds, however.
 ### Selecting a Bot
 There are 5 Bots in the application you can play with
 #### I'm too immature to lose
@@ -38,8 +39,9 @@ This is a medium difficulty bot. This bot answers the question with a depth of 6
 This is a hard bot. This bot was made to represent the captain of an average team. This bot answers the question with a depth of 40 to 60 percent, and has a negrate of 3 percent. This bot powers regularly.
 #### Pro
 This is an extremely hard bot. This bot was made to represent some of the best players in the world. This bot answers the question with a depth of 20 to 40 percent, and has a negrate of 1 percent. This bot powers nearly every time.
-### Scoring
+### Scoring and Timing
 Scoring is standard. -5 for a neg, 15 for power, and 10 for all other correct buzzes.
+You get 9 seconds to enter your response once you buzz. Since the bot is...well, a bot, it only takes about 2 seconds to answer. At the end of a tossup being read, you will have 3 seconds to buzz. Once the tossup is over, the answer will be shown and you will have 5 seconds before the next tossup starts.
 ### Interpreting Results
 In the master directory, which also has the src directory, you will find the GameOf files. These files are generated upon the completion of a game. They will show you the score by tossup and also the depth for that tossup. If depth is shown as -1, this means that the player did not buzz.
 ## Final Words
