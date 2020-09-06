@@ -1570,7 +1570,7 @@ class TrainWindow(QMainWindow):
                 meQDepth.append(-1)
             if len(botQDepth) < i+1:
                 botQDepth.append(-1)
-            time.sleep(3)
+            time.sleep(5)
             self.buzzLockout = False
         self.writeData()
 
