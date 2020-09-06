@@ -1445,7 +1445,7 @@ class TrainWindow(QMainWindow):
                     timeup = False
                     while not timeup:
                         end = time.time()
-                        if end - start >= 5 or self.answerSent:
+                        if end - start >= 9 or self.answerSent:
                             timeup = True
 
                     statusString += f"Player answered with {self.answerBox.text().strip()}.\n"
